@@ -11,8 +11,8 @@ More info:
 * Official [site](http://isida.dsy.name) 
 * Information about Installation or Update at [WIKI](http://isida.dsy.name/wiki)
 * Xmpp conference: isida@conference.jabber.ru
-* Telegram chat: https://t.me/joinchat/AAAAAAuRDaegv5f9LYjGLw
-* Bot: http://t.me/isida_bot
+* Telegram chat: https://t.me/isida_bot_dev
+* Bot: https://t.me/isida_bot
 
 ------
 
