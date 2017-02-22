@@ -1,0 +1,12 @@
+[main]
+token: <bot_token>
+bot_name: <bot_name>
+paranoia_mode: false
+
+[debug]
+logging: true
+console: true
+json: false
+
+[owner]
+id: 12345678 12345679
