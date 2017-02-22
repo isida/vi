@@ -1,6 +1,11 @@
 iSida bot 6th generation. BETA && UNSTABLE!
 ======
 
+Required:
+* chardet
+* requests
+
+------
 
 More info:
 * Official [site](http://isida.dsy.name) 

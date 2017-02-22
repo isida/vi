@@ -22,6 +22,7 @@
 # --------------------------------------------------------------------------- #
 
 import calendar
+import chardet
 import ConfigParser
 import json
 import math
@@ -35,11 +36,6 @@ import re
 import socket
 import string
 import sys
-
-# Include local path for libs
-sys.path = ['./lib'] + sys.path
-
-import chardet
 
 # Reload sys for apply UTF-8 encoding
 reload(sys)
