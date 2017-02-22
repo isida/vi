@@ -38,7 +38,8 @@ def cmd_horoscope(raw_in, text):
 						  '21.06-22.07', '23.07-22.08', '23.08-22.09', \
 						  '23.09-22.10', '23.10-21.11', '22.11-21.12', \
 						  '22.12-19.01', '20.01-18.02', '19.02-20.03']
-			msg = 'List of dates:\n%s' % '\n'.join([u'%s … %s %s' % (horo_dates[i], horoemo[i], t.capitalize()) for i,t in enumerate(horodb)])
+			msg = 'List of dates:\n%s' % '\n'.join([u'%s … %s %s' % \
+                (horo_dates[i], horoemo[i], t.capitalize()) for i,t in enumerate(horodb)])
 		if param in horodb:
 			body = html_encode(load_page('http://horo.mail.ru/prediction/%s/today' % param))
 			try:

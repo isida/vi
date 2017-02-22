@@ -22,13 +22,18 @@
 # --------------------------------------------------------------------------- #
 
 def cmd_to_drink(raw_in, text):
-	drink_dmas = ['first','second','third','fourth','fifth','sixth','seventh','eighth','nineth','tenth','eleventh','twelveth',
-			'thirteenth','fourteenth','fivteenth','sixteenth','seventeenth','eighteenth','nineteenth','twentieth',
-			'twenty-first','twenty-second','twenty-third','twenty-fourth','twenty-fifth','twenty-sixth','twenty-seventh',
-			'twenty-eighth','twenty-nineth','thirtieth','thirty-first']
-	drink_mmas1 = ['january','february','march','april','may','june','july','august','september','october','november','december']
-	drink_mmas2 = ['January','February','March','April','May','June','July','August','September','October','November','December']
-	drink_wday = ['monday','tuesday','wendesday','thirsday','friday','saturday','sunday']
+	drink_dmas = ['first','second','third','fourth','fifth','sixth','seventh',
+		'eighth','nineth','tenth','eleventh','twelveth','thirteenth',
+		'fourteenth','fivteenth','sixteenth','seventeenth','eighteenth',
+		'nineteenth','twentieth','twenty-first','twenty-second','twenty-third',
+		'twenty-fourth','twenty-fifth','twenty-sixth','twenty-seventh',
+		'twenty-eighth','twenty-nineth','thirtieth','thirty-first']
+	drink_mmas1 = ['january','february','march','april','may','june','july',
+		'august','september','october','november','december']
+	drink_mmas2 = ['January','February','March','April','May','June','July',
+		'August','September','October','November','December']
+	drink_wday = ['monday','tuesday','wendesday','thirsday','friday',
+		'saturday','sunday']
 	drink_lday = ['last','last','Last','last','Last','Last','lAst']
 	date_file = DATA_FOLDER % 'date.txt'
 	if os.path.isfile(date_file):

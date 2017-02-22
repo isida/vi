@@ -420,7 +420,7 @@ def remove_sub_space(t):
 # Send message
 def send_msg(raw_in, msg):
 	global LAST_MESSAGE, TIMEOUT
-	MSG = { 'chat_id': raw_in['message']['chat']['id'],
+	MSG = { 'chat_id': raw_in['message']['chat'].get('id',''),
 			'text': msg,
 			'parse_mode': 'HTML' }
 	request = requests.post(API_URL % 'sendMessage', data=MSG)
@@ -740,6 +740,8 @@ if is_win32:
 	win_console_color = ctypes.windll.Kernel32.GetStdHandle(ctypes.c_ulong(0xfffffff5))
 
 pprint('-'*50,'blue')
+pprint('%s %s' % (botName, get_bot_version()), 'bright_cyan')
+pprint('-'*50,'blue')
 pprint('*** Init enviroment succed', 'white')
 
 # --- Config ----------------------------------------------------------------- #
@@ -781,6 +783,7 @@ for plugin in plug_list:
 			COMMANDS.append(tmp)
 pprint('*** Total plugins: %s' % len(plug_list),'green')
 pprint('-'*50,'blue')
+pprint('Let\'s begin!','white')
 
 # --- Main cycle ------------------------------------------------------------- #
 while True:

@@ -89,3 +89,6 @@ ENV/
 # Custon path
 settings/config.ini
 data/syslog/*.txt
+data/tmp/isida.pid
+data/tmp/starttime
+data/tmp/version
