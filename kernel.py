@@ -25,6 +25,7 @@ import calendar
 import chardet
 import ConfigParser
 import json
+import logging
 import math
 import os
 import requests
@@ -36,10 +37,79 @@ import re
 import socket
 import string
 import sys
+import threading
 
 # Reload sys for apply UTF-8 encoding
 reload(sys)
 sys.setdefaultencoding('UTF8')
+
+# Threads with `kill` function
+class KThread(threading.Thread):
+	def __init__(self, *args, **keywords):
+		threading.Thread.__init__(self, *args, **keywords)
+		self.killed = False
+
+	def start(self):
+		self.__run_backup = self.run
+		self.run = self.__run
+		threading.Thread.start(self)
+
+	def __run(self):
+		sys.settrace(self.globaltrace)
+		self.__run_backup()
+		self.run = self.__run_backup
+
+	def globaltrace(self, frame, why, arg):
+		if why == 'call':
+			return self.localtrace
+		else:
+			return None
+
+	def localtrace(self, frame, why, arg):
+		if self.killed:
+			if why == 'line':
+				raise SystemExit()
+		return self.localtrace
+
+	def kill(self):
+		self.killed = True
+
+# Execute new thread
+def thr(func,param,name):
+	global th_cnt, thread_error_count, sema
+	th_cnt += 1
+	try:
+		tmp_th = KThread(group=None,target=log_execute,name='%s_%s' % \
+						(th_cnt,name),args=(func,param))
+		tmp_th.start()
+	except SystemExit:
+		pass
+	except Exception, SM:
+		try:
+			SM = str(SM)
+		except:
+			SM = unicode(SM)
+		if 'thread' in SM.lower():
+			thread_error_count += 1
+		else:
+			logging.exception(' [%s] %s' % (timeadd(tuple(time.localtime())), \
+								unicode(func)))
+		try:
+			tmp_th.kill()
+		except:
+			pass
+		if HALT_ON_EXCEPTION:
+			raise
+
+# Execute with exception catch
+def log_execute(proc, params):
+	try:
+		proc(*params)
+	except SystemExit:
+		pass
+	except:
+		logging.exception(' [%s] %s' % (timeadd(tuple(time.localtime())), \
+							unicode(proc)))
 
 # Decode from IDNA
 def deidna(text):
@@ -82,13 +152,16 @@ def html_encode(body):
 		for tmp in tbody:
 			try:
 				enc = chardet.detect(tmp)['encoding']
-				if enc == None or enc == '' or enc.lower() == 'unicode': enc = 'utf-8'
+				if enc == None or enc == '' or enc.lower() == 'unicode':
+					enc = 'utf-8'
 				tx += unicode(tmp,enc)
 			except:
 				ttext = ''
 				for tmp2 in tmp:
-					if (tmp2<='~'): ttext+=tmp2
-					else: ttext+='?'
+					if (tmp2<='~'):
+						ttext += tmp2
+					else:
+						ttext += '?'
 				tx += ttext
 			cntr += 1
 		return tx
@@ -134,7 +207,8 @@ def getFile(filename,default):
 			if os.path.isfile(back_file % filename.split('/')[-1]):
 				while True:
 					try:
-						filebody = eval(readfile(back_file % filename.split('/')[-1]))
+						filebody = eval(readfile(back_file % \
+										filename.split('/')[-1]))
 						break
 					except:
 						pass
@@ -147,19 +221,23 @@ def getFile(filename,default):
 	writefile(back_file % filename.split('/')[-1],str(filebody))
 	return filebody
 
-def replace_ltgt(text): return remove_replace_ltgt(text,' ')
+def replace_ltgt(text):
+	return remove_replace_ltgt(text,' ')
 
 def remove_replace_ltgt(text,item):
 	T = re.findall('<.*?>', text, re.S)
-	for tmp in T: text = text.replace(tmp,item,1)
+	for tmp in T:
+		text = text.replace(tmp,item,1)
 	return text
 
 def rss_replace(ms):
-	for tmp in lmass: ms = ms.replace(tmp[1],tmp[0])
+	for tmp in lmass:
+		ms = ms.replace(tmp[1],tmp[0])
 	return unescape(esc_min(ms))
 
 def esc_min(ms):
-	for tmp in rmass: ms = ms.replace(tmp[1],tmp[0])
+	for tmp in rmass:
+		ms = ms.replace(tmp[1],tmp[0])
 	return ms
 
 def unescape(text):
@@ -167,12 +245,17 @@ def unescape(text):
 		text = m.group(0)
 		if text[:2] == '&#':
 			try:
-				if text[:3] == '&#x': return unichr(int(text[3:-1], 16))
-				else: return unichr(int(text[2:-1]))
-			except ValueError: pass
+				if text[:3] == '&#x':
+					return unichr(int(text[3:-1], 16))
+				else:
+					return unichr(int(text[2:-1]))
+			except ValueError:
+				pass
 		else:
-			try: text = unichr(htmlentitydefs.name2codepoint[text[1:-1]])
-			except KeyError: pass
+			try:
+				text = unichr(htmlentitydefs.name2codepoint[text[1:-1]])
+			except KeyError:
+				pass
 		return text
 	return re.sub('&#?\w+;', fixup, text)
 
@@ -187,8 +270,10 @@ def unhtml_raw(page,mode):
 		page = page.replace(ttag,'')
 
 	page = rss_replace(page)
-	if mode: page = replace_ltgt(page)
-	else: page = rss_repl_html(page)
+	if mode:
+		page = replace_ltgt(page)
+	else:
+		page = rss_repl_html(page)
 	page = rss_replace(page)
 	page = rss_del_nn(page)
 	page = page.replace('\n ','')
@@ -196,12 +281,18 @@ def unhtml_raw(page,mode):
 
 def rss_del_nn(ms):
 	ms = ms.replace('\r',' ').replace('\t',' ')
-	while '\n ' in ms: ms = ms.replace('\n ','\n')
-	while len(ms) and (ms[0] == '\n' or ms[0] == ' '): ms = ms[1:]
-	while '\n\n' in ms: ms = ms.replace('\n\n','\n')
-	while '  ' in ms: ms = ms.replace('  ',' ')
-	while u'\n\n•' in ms: ms = ms.replace(u'\n\n•',u'\n•')
-	while u'• \n' in ms: ms = ms.replace(u'• \n',u'• ')
+	while '\n ' in ms:
+		ms = ms.replace('\n ','\n')
+	while len(ms) and (ms[0] == '\n' or ms[0] == ' '):
+		ms = ms[1:]
+	while '\n\n' in ms:
+		ms = ms.replace('\n\n','\n')
+	while '  ' in ms:
+		ms = ms.replace('  ',' ')
+	while u'\n\n•' in ms:
+		ms = ms.replace(u'\n\n•',u'\n•')
+	while u'• \n' in ms:
+		ms = ms.replace(u'• \n',u'• ')
 	return ms.strip()
 
 def unhtml(page):
@@ -213,31 +304,34 @@ def unhtml_hard(page):
 # Get Bot's version
 def get_bot_version():
 	if os.path.isfile(ver_file):
-		bvers = readfile(ver_file).decode('utf-8').replace('\n','').replace('\r','').replace('\t','').replace(' ','')
+		bvers = readfile(ver_file).decode('utf-8').replace('\n','').\
+					replace('\r','').replace('\t','').replace(' ','')
 		bV = '%s.%s-%s' % (botVersionDef,bvers,base_type)
-	else: bV = '%s-%s' % (botVersionDef, base_type)
+	else:
+		bV = '%s-%s' % (botVersionDef, base_type)
 	return bV
 
 # Get color by name on Linux
 def get_color(c):
 	color = os.environ.has_key('TERM')
-	colors = {'clear':'[0m','blue':'[34m','red':'[31m','magenta':'[35m','green':'[32m',\
-			  'cyan':'[36m','brown':'[33m','light_gray':'[37m','black':'[30m',\
-			  'bright_blue':'[34;1m','bright_red':'[31;1m','purple':'[35;1m',\
-			  'bright_green':'[32;1m','bright_cyan':'[36;1m','yellow':'[33;1m',\
-			  'dark_gray':'[30;1m','white':'[37;1m'}
+	colors = {'clear':'[0m','blue':'[34m','red':'[31m','magenta':'[35m',
+			  'green':'[32m','cyan':'[36m','brown':'[33m','light_gray':'[37m',
+			  'black':'[30m','bright_blue':'[34;1m','bright_red':'[31;1m',
+			  'purple':'[35;1m','bright_green':'[32;1m','bright_cyan':'[36;1m',
+			  'yellow':'[33;1m','dark_gray':'[30;1m','white':'[37;1m'}
 	return ['','\x1b%s' % colors[c]][color]
 
 # Get color by name on Windows
 def get_color_win32(c):
-	colors = {'clear':7,'blue':1,'red':4,'magenta':5,'green':2,'cyan':3,'brown':6,\
-			  'light_gray':7,'black':0,'bright_blue':9,'bright_red':12,'purple':13,\
-			  'bright_green':10,'bright_cyan':11,'yellow':14,'dark_gray':8,'white':15}
+	colors = {'clear':7,'blue':1,'red':4,'magenta':5,'green':2,'cyan':3,
+			  'brown':6,'light_gray':7,'black':0,'bright_blue':9,
+			  'bright_red':12,'purple':13,'bright_green':10,'bright_cyan':11,
+			  'yellow':14,'dark_gray':8,'white':15}
 	return colors[c]
 
 # Time and date to string
 def timeadd(lt):
-	return '%02d.%02d.%02d %02d:%02d:%02d' % (lt[2],lt[1],lt[0],lt[3],lt[4],lt[5])
+	return '%04d.%02d.%02d %02d:%02d:%02d' % lt[0:6]
 
 # Time to string
 def onlytimeadd(lt):
@@ -266,22 +360,28 @@ def pprint(*text):
 	text = text[0]
 	lt = tuple(time.localtime())
 	zz = '%s[%s]%s %s%s' % (wc,onlytimeadd(lt),c,text,wc)
-	last_logs_store = ['[%s] %s' % (onlytimeadd(lt),text)] + last_logs_store[:last_logs_size]
+	last_logs_store = ['[%s] %s' % (onlytimeadd(lt),text)] + \
+						last_logs_store[:last_logs_size]
 	if DEBUG_CONSOLE:
 		if is_win32 and win_color:
-			ctypes.windll.Kernel32.SetConsoleTextAttribute(win_console_color, get_color_win32('clear'))
+			ctypes.windll.Kernel32.SetConsoleTextAttribute(win_console_color, \
+				get_color_win32('clear'))
 			print zz.split(' ',1)[0],
-			ctypes.windll.Kernel32.SetConsoleTextAttribute(win_console_color, win_color)
-			try: print zz.split(' ',1)[1]
-			except: print parser(zz.split(' ',1)[1])
-			ctypes.windll.Kernel32.SetConsoleTextAttribute(win_console_color, get_color_win32('clear'))
+			ctypes.windll.Kernel32.SetConsoleTextAttribute(win_console_color, \
+				win_color)
+			try:
+				print zz.split(' ',1)[1]
+			except:
+				print parser(zz.split(' ',1)[1])
+			ctypes.windll.Kernel32.SetConsoleTextAttribute(win_console_color, \
+				get_color_win32('clear'))
 		else:
 			try:
 				print zz
 			except:
 				print parser(zz)
 	if DEBUG_LOG:
-		fname = SYSLOG_FOLDER % '%02d%02d%02d.txt' % (lt[0],lt[1],lt[2])
+		fname = SYSLOG_FOLDER % '%02d%02d%02d.txt' % lt[0:3]
 		fbody = '%s|%s\n' % (onlytimeadd(lt),text.replace('\n','\r'))
 		fl = open(fname, 'a')
 		fl.write(fbody.encode('utf-8'))
@@ -294,7 +394,7 @@ def Error(text):
 
 # Get integer value from config
 def get_config_int(_config, _section, _name):
-	try: 
+	try:
 		return int(_config.get(_section, _name))
 	except:
 		return -1
@@ -303,7 +403,7 @@ def get_config_int(_config, _section, _name):
 # True == 1, '1', 'yes', 'true'
 # False == all else
 def get_config_bin(_config, _section, _name):
-	try: 
+	try:
 		_var = int(_config.get(_section, _name))
 	except:
 		_var = _config.get(_section, _name).lower()
@@ -338,7 +438,8 @@ def send_msg(raw_in, msg):
 def get_opener(page_name, parameters=None):
 	socket.setdefaulttimeout(www_get_timeout)
 	try:
-		proxy_support = urllib2.ProxyHandler({'http' : 'http://%(user)s:%(password)s@%(host)s:%(port)d' % http_proxy})
+		proxy_support = urllib2.ProxyHandler({'http' : \
+			'http://%(user)s:%(password)s@%(host)s:%(port)d' % http_proxy})
 		opener = urllib2.build_opener(proxy_support, urllib2.HTTPHandler)
 		urllib2.install_opener(opener)
 	except:
@@ -373,16 +474,17 @@ def load_page(page_name, parameters=None):
 		return data.read(size_overflow)
 	else:
 		return data
-		
+
 # Check new incoming messages
 def check_updates():
 	global OFFSET
-	data = {'offset': OFFSET + 1,
-			'limit': 0,
+	data = {'limit': 0,
 			'timeout': 0}
+	if OFFSET:
+		data['offset'] = OFFSET + 1
 
 	request = requests.post(API_URL % 'getUpdates', data=data)
-	
+
 	if not request.status_code == 200:
 		pprint('*** Error code on getUpdates: %s' % request.status_code, 'red')
 		return False
@@ -397,12 +499,13 @@ def check_updates():
 		if msg_in.has_key('edited_message'):
 			msg_in['message'] = msg_in['edited_message']
 			pprint('*** Edited message!', 'yellow')
-			
+
 		#send_msg(msg_in, '<i>Edited messages not supported now!</i>')
 
 		if 'message' not in msg_in or 'text' not in msg_in['message']:
 			if msg_in['message'].has_key('new_chat_participant'):
-				pprint('New participant|%s' % '|'.join([str(t) for t in [msg_in['message']['chat']['all_members_are_administrators'], \
+				pprint('New participant|%s' % '|'.join([str(t) for t in [\
+					msg_in['message']['chat'].get('all_members_are_administrators',''), \
 					msg_in['message']['chat'].get('type',''), \
 					msg_in['message']['chat'].get('id',''), \
 					msg_in['message']['chat'].get('title',''), \
@@ -412,7 +515,8 @@ def check_updates():
 					msg_in['message']['new_chat_participant'].get('last_name','') ]]),'cyan')
 				break
 			elif msg_in['message'].has_key('left_chat_participant'):
-				pprint('Left participant|%s' % '|'.join([str(t) for t in [msg_in['message']['chat']['all_members_are_administrators'], \
+				pprint('Left participant|%s' % '|'.join([str(t) for t in [\
+					msg_in['message']['chat'].get('all_members_are_administrators',''), \
 					msg_in['message']['chat'].get('type',''), \
 					msg_in['message']['chat'].get('id',''), \
 					msg_in['message']['chat'].get('title',''), \
@@ -421,23 +525,20 @@ def check_updates():
 					msg_in['message']['left_chat_participant'].get('first_name',''), \
 					msg_in['message']['left_chat_participant'].get('last_name','') ]]),'cyan')
 				break
-			else:		  
+			else:
 				pprint('Unknown message', 'red')
 				pprint(json.dumps(msg_in, indent=2, separators=(',', ': ')), 'magenta')
 				continue
 
-		IS_OWNER = msg_in['message']['from']['id'] == OWNER_ID
-		CMD = msg_in['message']['text'].strip()
-		_ID = msg_in['message']['from']['id']
+		IS_OWNER = msg_in['message']['from'].get('id', '') == OWNER_ID
+		CMD = msg_in['message'].get('text','').strip()
+		_ID = msg_in['message']['from'].get('id','')
 		_USERNAME = msg_in['message']['from'].get('username','')
 		_FIRST_NAME = msg_in['message']['from'].get('first_name','')
 		_LAST_NAME = msg_in['message']['from'].get('last_name','')
-		
-		pprint('|'.join([str(t) for t in [_ID, \
-			_USERNAME, \
-			_FIRST_NAME, \
-			_LAST_NAME, \
-			CMD]]),'cyan')
+
+		pprint('|'.join([str(t) for t in [_ID, _USERNAME, _FIRST_NAME, \
+			_LAST_NAME, CMD]]),'cyan')
 		# name, proc, is_owner, data_type
 		#commands = ['whoami', cmd_whoami, False, 'raw']
 		IS_COMMAND = False
@@ -450,7 +551,9 @@ def check_updates():
 				ALLOW = False
 			if CMD.startswith('/'):
 				CMD = CMD[1:]
-			if CMD.startswith('%s ' % c[0]) or CMD == c[0] or CMD == '%s@%s' % (c[0], BOT_NAME) or CMD.startswith('%s@%s ' % (c[0], BOT_NAME)):
+			if CMD.startswith('%s ' % c[0]) or CMD == c[0] or \
+				CMD == '%s@%s' % (c[0], BOT_NAME) or \
+				CMD.startswith('%s@%s ' % (c[0], BOT_NAME)):
 				if ALLOW:
 					if c[3] == 'raw':
 						c[1](msg_in)
@@ -466,23 +569,23 @@ def check_updates():
 					send_msg(msg_in,'🔒 Locked! Command allowed only for bot\'s owner.')
 				IS_COMMAND = True
 				break
-		
+
 		if not IS_COMMAND:
 			if (msg_in['message']['text'].startswith('@%s ' % BOT_NAME) and \
 					msg_in['message'].has_key('chat') and \
 					msg_in['message']['chat'].has_key('type') and \
-					msg_in['message']['chat']['type'] == 'group') or \
+					msg_in['message']['chat'].get('type','') == 'group') or \
 					(msg_in['message'].has_key('reply_to_message') and \
 					msg_in['message']['reply_to_message'].has_key('from') and \
 					msg_in['message']['reply_to_message']['from'].has_key('username') and \
-					msg_in['message']['reply_to_message']['from']['username'] == BOT_NAME):
+					msg_in['message']['reply_to_message']['from'].get('username','') == BOT_NAME):
 				text = msg_in['message']['text'][len(BOT_NAME)+1:].strip()
 				msg = getAnswer(msg_in, text)
 				send_msg(msg_in, msg)
 			elif (msg_in['message'].has_key('chat') and \
 					msg_in['message']['chat'].has_key('type') and \
-					msg_in['message']['chat']['type'] == 'private'):
-				text = msg_in['message']['text'].strip()
+					msg_in['message']['chat'].get('type','') == 'private'):
+				text = msg_in['message'].get('text').strip()
 				msg = getAnswer(msg_in, text)
 				send_msg(msg_in, msg)
 			else:
@@ -529,44 +632,68 @@ def shell_execute(cmd):
 	return '<code>%s</code>' % result
 
 # --- Let's begin! -------------------------------------------------------------- #
-lmass = (('\n','<br>'),('\n','<br />'),('\n','<br/>'),('\n','\n\r'),('','<![CDATA['),('',']]>'),
-		('','&shy;'),('','&ensp;'),('','&emsp;'),('','&thinsp;'),('','&zwnj;'),('','&zwj;'))
-rmass = (('&','&amp;'),('\"','&quot;'),('\'','&apos;'),('~','&tilde;'),(' ','&nbsp;'),
-		('<','&lt;'),('>','&gt;'),(u'¡','&iexcl;'),(u'¢','&cent;'),(u'£','&pound;'),
-		(u'¤','&curren;'),(u'¥','&yen;'),(u'¦','&brvbar;'),(u'§','&sect;'),(u'¨','&uml;'),(u'©','&copy;'),(u'ª','&ordf;'),
-		(u'«','&laquo;'),(u'¬','&not;'),(u'®','&reg;'),(u'¯','&macr;'),(u'°','&deg;'),(u'±','&plusmn;'),
-		(u'²','&sup2;'),(u'³','&sup3;'),(u'´','&acute;'),(u'µ','&micro;'),(u'¶','&para;'),(u'·','&middot;'),(u'¸','&cedil;'),
-		(u'¹','&sup1;'),(u'º','&ordm;'),(u'»','&raquo;'),(u'¼','&frac14;'),(u'½','&frac12;'),(u'¾','&frac34;'),(u'¿','&iquest;'),
-		(u'×','&times;'),(u'÷','&divide;'),(u'À','&Agrave;'),(u'Á','&Aacute;'),(u'Â','&Acirc;'),(u'Ã','&Atilde;'),(u'Ä','&Auml;'),
-		(u'Å','&Aring;'),(u'Æ','&AElig;'),(u'Ç','&Ccedil;'),(u'È','&Egrave;'),(u'É','&Eacute;'),(u'Ê','&Ecirc;'),(u'Ë','&Euml;'),
-		(u'Ì','&Igrave;'),(u'Í','&Iacute;'),(u'Î','&Icirc;'),(u'Ï','&Iuml;'),(u'Ð','&ETH;'),(u'Ñ','&Ntilde;'),(u'Ò','&Ograve;'),
-		(u'Ó','&Oacute;'),(u'Ô','&Ocirc;'),(u'Õ','&Otilde;'),(u'Ö','&Ouml;'),(u'Ø','&Oslash;'),(u'Ù','&Ugrave;'),(u'Ú','&Uacute;'),
-		(u'Û','&Ucirc;'),(u'Ü','&Uuml;'),(u'Ý','&Yacute;'),(u'Þ','&THORN;'),(u'ß','&szlig;'),(u'à','&agrave;'),(u'á','&aacute;'),
-		(u'â','&acirc;'),(u'ã','&atilde;'),(u'ä','&auml;'),(u'å','&aring;'),(u'æ','&aelig;'),(u'ç','&ccedil;'),(u'è','&egrave;'),
-		(u'é','&eacute;'),(u'ê','&ecirc;'),(u'ë','&euml;'),(u'ì','&igrave;'),(u'í','&iacute;'),(u'î','&icirc;'),(u'ï','&iuml;'),
-		(u'ð','&eth;'),(u'ñ','&ntilde;'),(u'ò','&ograve;'),(u'ó','&oacute;'),(u'ô','&ocirc;'),(u'õ','&otilde;'),(u'ö','&ouml;'),
-		(u'ø','&oslash;'),(u'ù','&ugrave;'),(u'ú','&uacute;'),(u'û','&ucirc;'),(u'ü','&uuml;'),(u'ý','&yacute;'),(u'þ','&thorn;'),
-		(u'ÿ','&yuml;'),(u'∀','&forall;'),(u'∂','&part;'),(u'∃','&exists;'),(u'∅','&empty;'),(u'∇','&nabla;'),(u'∈','&isin;'),
-		(u'∉','&notin;'),(u'∋','&ni;'),(u'∏','&prod;'),(u'∑','&sum;'),(u'−','&minus;'),(u'∗','&lowast;'),(u'√','&radic;'),
-		(u'∝','&prop;'),(u'∞','&infin;'),(u'∠','&ang;'),(u'∧','&and;'),(u'∨','&or;'),(u'∩','&cap;'),(u'∪','&cup;'),
-		(u'∫','&int;'),(u'∴','&there4;'),(u'∼','&sim;'),(u'≅','&cong;'),(u'≈','&asymp;'),(u'≠','&ne;'),(u'≡','&equiv;'),
-		(u'≤','&le;'),(u'≥','&ge;'),(u'⊂','&sub;'),(u'⊃','&sup;'),(u'⊄','&nsub;'),(u'⊆','&sube;'),(u'⊇','&supe;'),
-		(u'⊕','&oplus;'),(u'⊗','&otimes;'),(u'⊥','&perp;'),(u'⋅','&sdot;'),(u'Α','&Alpha;'),(u'Β','&Beta;'),(u'Γ','&Gamma;'),
-		(u'Δ','&Delta;'),(u'Ε','&Epsilon;'),(u'Ζ','&Zeta;'),(u'Η','&Eta;'),(u'Θ','&Theta;'),(u'Ι','&Iota;'),(u'Κ','&Kappa;'),
-		(u'Λ','&Lambda;'),(u'Μ','&Mu;'),(u'Ν','&Nu;'),(u'Ξ','&Xi;'),(u'Ο','&Omicron;'),(u'Π','&Pi;'),(u'Ρ','&Rho;'),
-		(u'Σ','&Sigma;'),(u'Τ','&Tau;'),(u'Υ','&Upsilon;'),(u'Φ','&Phi;'),(u'Χ','&Chi;'),(u'Ψ','&Psi;'),(u'Ω','&Omega;'),
-		(u'α','&alpha;'),(u'β','&beta;'),(u'γ','&gamma;'),(u'δ','&delta;'),(u'ε','&epsilon;'),(u'ζ','&zeta;'),(u'η','&eta;'),
-		(u'θ','&theta;'),(u'ι','&iota;'),(u'κ','&kappa;'),(u'λ','&lambda;'),(u'μ','&mu;'),(u'ν','&nu;'),(u'ξ','&xi;'),
-		(u'ο','&omicron;'),(u'π','&pi;'),(u'ρ','&rho;'),(u'ς','&sigmaf;'),(u'σ','&sigma;'),(u'τ','&tau;'),(u'υ','&upsilon;'),
-		(u'φ','&phi;'),(u'χ','&chi;'),(u'ψ','&psi;'),(u'ω','&omega;'),(u'ϑ','&thetasym;'),(u'ϒ','&upsih;'),(u'ϖ','&piv;'),
-		(u'Œ','&OElig;'),(u'œ','&oelig;'),(u'Š','&Scaron;'),(u'š','&scaron;'),(u'Ÿ','&Yuml;'),(u'ƒ','&fnof;'),(u'ˆ','&circ;'),
-		(u'‎','&lrm;'),(u'‏','&rlm;'),(u'–','&ndash;'),(u'—','&mdash;'),(u'‘','&lsquo;'),(u'’','&rsquo;'),(u'‚','&sbquo;'),
-		(u'“','&ldquo;'),(u'”','&rdquo;'),(u'„','&bdquo;'),(u'†','&dagger;'),(u'‡','&Dagger;'),(u'•','&bull;'),(u'…','&hellip;'),
-		(u'‰','&permil;'),(u'′','&prime;'),(u'″','&Prime;'),(u'‹','&lsaquo;'),(u'›','&rsaquo;'),(u'‾','&oline;'),(u'€','&euro;'),
-		(u'™','&trade;'),(u'←','&larr;'),(u'↑','&uarr;'),(u'→','&rarr;'),(u'↓','&darr;'),(u'↔','&harr;'),(u'↵','&crarr;'),
-		(u'⌈','&lceil;'),(u'⌉','&rceil;'),(u'⌊','&lfloor;'),(u'⌋','&rfloor'),(u'◊','&loz;'),(u'♠','&spades;'),(u'♣','&clubs;'),
-		(u'♥','&hearts;'),(u'♦','&diams;'))
-
+lmass = (('\n','<br>'),('\n','<br />'),('\n','<br/>'),('\n','\n\r'),
+		('','<![CDATA['),('',']]>'),('','&shy;'),('','&ensp;'),('','&emsp;'),
+		('','&thinsp;'),('','&zwnj;'),('','&zwj;'))
+rmass = (('&','&amp;'),('\"','&quot;'),('\'','&apos;'),('~','&tilde;'),
+		(' ','&nbsp;'),('<','&lt;'),('>','&gt;'),(u'¡','&iexcl;'),
+		(u'¢','&cent;'),(u'£','&pound;'),(u'¤','&curren;'),(u'¥','&yen;'),
+		(u'¦','&brvbar;'),(u'§','&sect;'),(u'¨','&uml;'),(u'©','&copy;'),
+		(u'ª','&ordf;'),(u'«','&laquo;'),(u'¬','&not;'),(u'®','&reg;'),
+		(u'¯','&macr;'),(u'°','&deg;'),(u'±','&plusmn;'),(u'²','&sup2;'),
+		(u'³','&sup3;'),(u'´','&acute;'),(u'µ','&micro;'),(u'¶','&para;'),
+		(u'·','&middot;'),(u'¸','&cedil;'),(u'¹','&sup1;'),(u'º','&ordm;'),
+		(u'»','&raquo;'),(u'¼','&frac14;'),(u'½','&frac12;'),(u'¾','&frac34;'),
+		(u'¿','&iquest;'),(u'×','&times;'),(u'÷','&divide;'),(u'À','&Agrave;'),
+		(u'Á','&Aacute;'),(u'Â','&Acirc;'),(u'Ã','&Atilde;'),(u'Ä','&Auml;'),
+		(u'Å','&Aring;'),(u'Æ','&AElig;'),(u'Ç','&Ccedil;'),(u'È','&Egrave;'),
+		(u'É','&Eacute;'),(u'Ê','&Ecirc;'),(u'Ë','&Euml;'),(u'Ì','&Igrave;'),
+		(u'Í','&Iacute;'),(u'Î','&Icirc;'),(u'Ï','&Iuml;'),(u'Ð','&ETH;'),
+		(u'Ñ','&Ntilde;'),(u'Ò','&Ograve;'),(u'Ó','&Oacute;'),(u'Ô','&Ocirc;'),
+		(u'Õ','&Otilde;'),(u'Ö','&Ouml;'),(u'Ø','&Oslash;'),(u'Ù','&Ugrave;'),
+		(u'Ú','&Uacute;'),(u'Û','&Ucirc;'),(u'Ü','&Uuml;'),(u'Ý','&Yacute;'),
+		(u'Þ','&THORN;'),(u'ß','&szlig;'),(u'à','&agrave;'),(u'á','&aacute;'),
+		(u'â','&acirc;'),(u'ã','&atilde;'),(u'ä','&auml;'),(u'å','&aring;'),
+		(u'æ','&aelig;'),(u'ç','&ccedil;'),(u'è','&egrave;'),(u'é','&eacute;'),
+		(u'ê','&ecirc;'),(u'ë','&euml;'),(u'ì','&igrave;'),(u'í','&iacute;'),
+		(u'î','&icirc;'),(u'ï','&iuml;'),(u'ð','&eth;'),(u'ñ','&ntilde;'),
+		(u'ò','&ograve;'),(u'ó','&oacute;'),(u'ô','&ocirc;'),(u'õ','&otilde;'),
+		(u'ö','&ouml;'),(u'ø','&oslash;'),(u'ù','&ugrave;'),(u'ú','&uacute;'),
+		(u'û','&ucirc;'),(u'ü','&uuml;'),(u'ý','&yacute;'),(u'þ','&thorn;'),
+		(u'ÿ','&yuml;'),(u'∀','&forall;'),(u'∂','&part;'),(u'∃','&exists;'),
+		(u'∅','&empty;'),(u'∇','&nabla;'),(u'∈','&isin;'),(u'∉','&notin;'),
+		(u'∋','&ni;'),(u'∏','&prod;'),(u'∑','&sum;'),(u'−','&minus;'),
+		(u'∗','&lowast;'),(u'√','&radic;'),(u'∝','&prop;'),(u'∞','&infin;'),
+		(u'∠','&ang;'),(u'∧','&and;'),(u'∨','&or;'),(u'∩','&cap;'),
+		(u'∪','&cup;'),(u'∫','&int;'),(u'∴','&there4;'),(u'∼','&sim;'),
+		(u'≅','&cong;'),(u'≈','&asymp;'),(u'≠','&ne;'),(u'≡','&equiv;'),
+		(u'≤','&le;'),(u'≥','&ge;'),(u'⊂','&sub;'),(u'⊃','&sup;'),
+		(u'⊄','&nsub;'),(u'⊆','&sube;'),(u'⊇','&supe;'),(u'⊕','&oplus;'),
+		(u'⊗','&otimes;'),(u'⊥','&perp;'),(u'⋅','&sdot;'),(u'Α','&Alpha;'),
+		(u'Β','&Beta;'),(u'Γ','&Gamma;'),(u'Δ','&Delta;'),(u'Ε','&Epsilon;'),
+		(u'Ζ','&Zeta;'),(u'Η','&Eta;'),(u'Θ','&Theta;'),(u'Ι','&Iota;'),
+		(u'Κ','&Kappa;'),(u'Λ','&Lambda;'),(u'Μ','&Mu;'),(u'Ν','&Nu;'),
+		(u'Ξ','&Xi;'),(u'Ο','&Omicron;'),(u'Π','&Pi;'),(u'Ρ','&Rho;'),
+		(u'Σ','&Sigma;'),(u'Τ','&Tau;'),(u'Υ','&Upsilon;'),(u'Φ','&Phi;'),
+		(u'Χ','&Chi;'),(u'Ψ','&Psi;'),(u'Ω','&Omega;'),(u'α','&alpha;'),
+		(u'β','&beta;'),(u'γ','&gamma;'),(u'δ','&delta;'),(u'ε','&epsilon;'),
+		(u'ζ','&zeta;'),(u'η','&eta;'),(u'θ','&theta;'),(u'ι','&iota;'),
+		(u'κ','&kappa;'),(u'λ','&lambda;'),(u'μ','&mu;'),(u'ν','&nu;'),
+		(u'ξ','&xi;'),(u'ο','&omicron;'),(u'π','&pi;'),(u'ρ','&rho;'),
+		(u'ς','&sigmaf;'),(u'σ','&sigma;'),(u'τ','&tau;'),(u'υ','&upsilon;'),
+		(u'φ','&phi;'),(u'χ','&chi;'),(u'ψ','&psi;'),(u'ω','&omega;'),
+		(u'ϑ','&thetasym;'),(u'ϒ','&upsih;'),(u'ϖ','&piv;'),(u'Œ','&OElig;'),
+		(u'œ','&oelig;'),(u'Š','&Scaron;'),(u'š','&scaron;'),(u'Ÿ','&Yuml;'),
+		(u'ƒ','&fnof;'),(u'ˆ','&circ;'),(u'‎','&lrm;'),(u'‏','&rlm;'),
+		(u'–','&ndash;'),(u'—','&mdash;'),(u'‘','&lsquo;'),(u'’','&rsquo;'),
+		(u'‚','&sbquo;'),(u'“','&ldquo;'),(u'”','&rdquo;'),(u'„','&bdquo;'),
+		(u'†','&dagger;'),(u'‡','&Dagger;'),(u'•','&bull;'),(u'…','&hellip;'),
+		(u'‰','&permil;'),(u'′','&prime;'),(u'″','&Prime;'),(u'‹','&lsaquo;'),
+		(u'›','&rsaquo;'),(u'‾','&oline;'),(u'€','&euro;'),(u'™','&trade;'),
+		(u'←','&larr;'),(u'↑','&uarr;'),(u'→','&rarr;'),(u'↓','&darr;'),
+		(u'↔','&harr;'),(u'↵','&crarr;'),(u'⌈','&lceil;'),(u'⌉','&rceil;'),
+		(u'⌊','&lfloor;'),(u'⌋','&rfloor'),(u'◊','&loz;'),(u'♠','&spades;'),
+		(u'♣','&clubs;'),(u'♥','&hearts;'),(u'♦','&diams;'))
 TELEGRAM_API_URL = 'https://api.telegram.org/bot%s' # Bot apt URL
 SETTING_FOLDER   = 'settings/%s'                    # Setting folder
 PLUGIN_FOLDER    = 'plugins/%s'                     # Plugins folder
@@ -574,11 +701,11 @@ DATA_FOLDER      = 'data/%s'                        # Data folder
 ver_file         = DATA_FOLDER % 'version'          # Bot's version file
 SYSLOG_FOLDER    = DATA_FOLDER % 'syslog/%s'        # Syslogs folder
 CONFIG_FILE      = SETTING_FOLDER % 'config.ini'    # Config filename
+LOG_FILENAME     = SYSLOG_FOLDER % 'error.txt'      # Error logs
 last_logs_store  = []                               # Last logs
 last_logs_size   = 20                               # Last logs count
 DEBUG_CONSOLE    = True                             # Show debugging in console
 DEBUG_LOG        = True                             # Logging all bot's actions
-OFFSET           = 0                                # Message offset
 CONFIG_MAIN      = 'main'                           # Main section name in config
 CONFIG_DEBUG     = 'debug'                          # Debug section name in config
 CONFIG_OWNER     = 'owner'                          # Owner section name in config
@@ -597,8 +724,15 @@ TIMEOUT          = 1                                # Default timeout between re
 LAST_MESSAGE     = time.time()                      # Last message time
 TIMEOUT_DIFF     = 60                               # Little sleep every 60 seconds
 TIMEOUT_STEP     = 1.3                              # Size of update time sleep
+CYCLES           = 0
 
-# --- Init ---------------------------------------------------------------------- #
+# --- Init ------------------------------------------------------------------- #
+try:
+	_ = OFFSET
+except NameError:
+	OFFSET = 0
+logging.basicConfig(filename=LOG_FILENAME,level=logging.DEBUG,)
+sema = threading.BoundedSemaphore(value=30)
 is_win32 = sys.platform == 'win32'
 if is_win32:
 	import ctypes
@@ -608,7 +742,7 @@ if is_win32:
 pprint('-'*50,'blue')
 pprint('*** Init enviroment succed', 'white')
 
-# --- Config -------------------------------------------------------------------- #
+# --- Config ----------------------------------------------------------------- #
 pprint('*** Loadnig config', 'white')
 if not os.path.exists(CONFIG_FILE):
 	Error('Config file not found: %s' % CONFIG_FILE)
@@ -621,18 +755,19 @@ if CONFIG_DEBUG not in SECTIONS:
 	Error('Debug options not found in %s' % CONFIG_FILE)
 if CONFIG_OWNER not in SECTIONS:
 	Error('Owner options not found in %s' % CONFIG_FILE)
-	
-CONFIG_API_TOKEN = CONFIG.get(CONFIG_MAIN,'token')
-BOT_NAME         = CONFIG.get(CONFIG_MAIN,'bot_name')
-PARANOIA_MODE    = get_config_bin(CONFIG, CONFIG_MAIN, 'paranoia_mode')
-DEBUG_LOG        = get_config_bin(CONFIG, CONFIG_DEBUG, 'logging')
-DEBUG_CONSOLE    = get_config_bin(CONFIG, CONFIG_DEBUG, 'console')
-DEBUG_JSON       = get_config_bin(CONFIG, CONFIG_DEBUG, 'json')
-OWNER_ID         = get_config_int(CONFIG, CONFIG_OWNER, 'id')
+
+CONFIG_API_TOKEN  = CONFIG.get(CONFIG_MAIN,'token')
+BOT_NAME          = CONFIG.get(CONFIG_MAIN,'bot_name')
+PARANOIA_MODE     = get_config_bin(CONFIG, CONFIG_MAIN, 'paranoia_mode')
+DEBUG_LOG         = get_config_bin(CONFIG, CONFIG_DEBUG, 'logging')
+DEBUG_CONSOLE     = get_config_bin(CONFIG, CONFIG_DEBUG, 'console')
+DEBUG_JSON        = get_config_bin(CONFIG, CONFIG_DEBUG, 'json')
+HALT_ON_EXCEPTION = get_config_bin(CONFIG, CONFIG_DEBUG, 'halt_on_exception')
+OWNER_ID          = get_config_int(CONFIG, CONFIG_OWNER, 'id')
 
 API_URL = TELEGRAM_API_URL % CONFIG_API_TOKEN + '/%s'
 
-# --- Plugins ------------------------------------------------------------------- #
+# --- Plugins ---------------------------------------------------------------- #
 pprint('*** Loading plugins', 'white')
 plug_list = [p for p in os.listdir(PLUGIN_FOLDER % '') if not p.startswith('.') and p.endswith('.py')]
 plug_list.sort()
@@ -647,17 +782,19 @@ for plugin in plug_list:
 pprint('*** Total plugins: %s' % len(plug_list),'green')
 pprint('-'*50,'blue')
 
-# --- Main cycle ---------------------------------------------------------------- #
+# --- Main cycle ------------------------------------------------------------- #
 while True:
-	time.sleep(TIMEOUT)
 	try:
 		check_updates()
 	except KeyboardInterrupt:
 		pprint('Shutdown by CTRL+C...','bright_red')
-		break
+		time.sleep(1)
+		sys.exit('exit')
 	if (time.time() - LAST_MESSAGE) > TIMEOUT_DIFF and TIMEOUT <= MAX_TIMEOUT:
 		TIMEOUT = TIMEOUT * TIMEOUT_STEP
 		LAST_MESSAGE = time.time()
 		pprint('*** Sleep time: %.02f' % TIMEOUT, 'brown')
+	CYCLES += 1
+	time.sleep(TIMEOUT)
 
 # The end is near!
