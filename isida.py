@@ -41,7 +41,7 @@ starttime_file	= tmp_folder % 'starttime'
 id_append = ''
 GIT_VER_FORMAT	= '%s.%s-git%s'
 TIME_VER_FORMAT	= '%s-none%s'
-OFFSET          = 0                                # Message offset
+OFFSET          = 0 # Message offset
 
 def readfile(filename):
 	fp = file(filename)

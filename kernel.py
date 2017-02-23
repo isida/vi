@@ -21,6 +21,7 @@
 #                                                                             #
 # --------------------------------------------------------------------------- #
 
+import datetime
 import calendar
 import chardet
 import ConfigParser
@@ -84,12 +85,12 @@ def thr(func,param,name):
 		tmp_th.start()
 	except SystemExit:
 		pass
-	except Exception, SM:
+	except Exception, MSG:
 		try:
-			SM = str(SM)
+			MSG = str(MSG)
 		except:
-			SM = unicode(SM)
-		if 'thread' in SM.lower():
+			MSG = unicode(MSG)
+		if 'thread' in MSG.lower():
 			thread_error_count += 1
 		else:
 			logging.exception(' [%s] %s' % (timeadd(tuple(time.localtime())), \
@@ -450,12 +451,12 @@ def get_opener(page_name, parameters=None):
 	try:
 		data = opener.open(page_name)
 		result = True
-	except Exception, SM:
+	except Exception, MSG:
 		try:
-			SM = str(SM)
+			MSG = str(MSG)
 		except:
-			SM = unicode(SM)
-		data = 'Error! %s' % SM.replace('>','').replace('<','').capitalize()
+			MSG = unicode(MSG)
+		data = 'Error! %s' % MSG.replace('>','').replace('<','').capitalize()
 		result = False
 	return data, result
 
@@ -602,7 +603,7 @@ def get_tag(body,tag):
 
 def shell_execute(cmd):
 	if PARANOIA_MODE:
-		result = 'Command temporary blocked!'
+		result = '🔒 Command temporary blocked!'
 	else:
 		tmp_file = '%s.tmp' % int(time.time())
 		try:
@@ -611,20 +612,20 @@ def shell_execute(cmd):
 				try:
 					body = readfile(tmp_file)
 				except:
-					body = 'Command execution error.'
+					body = '⚠️ Command execution error.'
 				if len(body):
 					enc = chardet.detect(body)['encoding']
 					result = remove_sub_space(unicode(body,enc))
 				else:
 					result = 'ok'
 			else:
-				result = 'Command execution error.'
-		except Exception, SM:
+				result = '⚠️ Command execution error.'
+		except Exception, MSG:
 			try:
-				SM = str(SM)
+				MSG = str(MSG)
 			except:
-				SM = unicode(SM)
-			result = 'I can\'t execute it! Error: %s' % SM
+				MSG = unicode(MSG)
+			result = '⚠️ I can\'t execute it! Error: %s' % MSG
 		try:
 			os.remove(tmp_file)
 		except:
@@ -698,7 +699,8 @@ TELEGRAM_API_URL = 'https://api.telegram.org/bot%s' # Bot apt URL
 SETTING_FOLDER   = 'settings/%s'                    # Setting folder
 PLUGIN_FOLDER    = 'plugins/%s'                     # Plugins folder
 DATA_FOLDER      = 'data/%s'                        # Data folder
-ver_file         = DATA_FOLDER % 'version'          # Bot's version file
+TMP_FOLDER       = DATA_FOLDER % 'tmp/%s'
+ver_file         = TMP_FOLDER % 'version'          # Bot's version file
 SYSLOG_FOLDER    = DATA_FOLDER % 'syslog/%s'        # Syslogs folder
 CONFIG_FILE      = SETTING_FOLDER % 'config.ini'    # Config filename
 LOG_FILENAME     = SYSLOG_FOLDER % 'error.txt'      # Error logs
@@ -731,7 +733,7 @@ try:
 	_ = OFFSET
 except NameError:
 	OFFSET = 0
-logging.basicConfig(filename=LOG_FILENAME,level=logging.DEBUG,)
+logging.basicConfig(filename=LOG_FILENAME)#,level=logging.DEBUG,)
 sema = threading.BoundedSemaphore(value=30)
 is_win32 = sys.platform == 'win32'
 if is_win32:
@@ -793,6 +795,15 @@ while True:
 		pprint('Shutdown by CTRL+C...','bright_red')
 		time.sleep(1)
 		sys.exit('exit')
+	except Exception, MSG:
+		try:
+			MSG = str(MSG)
+		except:
+			MSG = unicode(MSG)
+		pprint('*** Error *** %s ***' % MSG, 'red')
+		logging.exception(' [%s] ' % timeadd(tuple(time.localtime())))
+		if HALT_ON_EXCEPTION:
+			raise
 	if (time.time() - LAST_MESSAGE) > TIMEOUT_DIFF and TIMEOUT <= MAX_TIMEOUT:
 		TIMEOUT = TIMEOUT * TIMEOUT_STEP
 		LAST_MESSAGE = time.time()

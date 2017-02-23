@@ -23,10 +23,14 @@
 
 def cmd_help(raw_in):
 	def get_su(t):
-		return ['','🔒'][t]
+		return ['','⚠️'][t]
+	IS_OWNER = raw_in['message']['from'].get('id', '') == OWNER_ID
 	rez = []
 	for cmd in COMMANDS:
-		rez.append((cmd[0],cmd[4],get_su(cmd[2])))
+		if IS_OWNER:
+			rez.append((cmd[0],cmd[4],get_su(cmd[2])))
+		elif not cmd[2]:
+			rez.append((cmd[0],cmd[4],''))
 	rez.sort()
 	msg = 'I know commands:\n'
 	msg += '\n'.join('/%s - %s %s' % t for t in rez)
