@@ -484,7 +484,12 @@ def check_updates():
 	if OFFSET:
 		data['offset'] = OFFSET + 1
 
-	request = requests.post(API_URL % 'getUpdates', data=data)
+	try:
+		request = requests.post(API_URL % 'getUpdates', data=data)
+	except ConnectionError:
+		pprint('*** Connection error on getUpdates. Waiting %s seconds.' % MAX_TIMEOUT, 'red')
+		time.sleep(MAX_TIMEOUT)
+		return False
 
 	if not request.status_code == 200:
 		pprint('*** Error code on getUpdates: %s' % request.status_code, 'red')
