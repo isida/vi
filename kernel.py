@@ -486,7 +486,7 @@ def check_updates():
 
 	try:
 		request = requests.post(API_URL % 'getUpdates', data=data)
-	except ConnectionError:
+	except requests.exceptions.ConnectionError:
 		pprint('*** Connection error on getUpdates. Waiting %s seconds.' % MAX_TIMEOUT, 'red')
 		time.sleep(MAX_TIMEOUT)
 		return False
