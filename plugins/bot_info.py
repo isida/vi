@@ -22,7 +22,7 @@
 # --------------------------------------------------------------------------- #
 
 def cmd_bot_info(raw_in):
-	msg = '🤖 %s %s\n🖥️ %s' % (botName, get_bot_version(), get_os_version().replace(' / ','\n🐍 '))
+	msg = '🤖 %s %s' % (botName, get_bot_version())
 	msg += '\n🔄 Cycles: %s' % CYCLES
 	msg += '\n▶️ Threads: %s' % THREAD_COUNT
 	msg += '\n❗️ Error threads: %s' % THREAD_ERROR_COUNT

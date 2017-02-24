@@ -21,20 +21,21 @@
 #                                                                             #
 # --------------------------------------------------------------------------- #
 
-def cmd_update(raw_in):
-	send_msg(raw_in,'Let\'s update!')
+def raw_bot_restart(raw_in, msg, status):
+	global GAME_OVER, BOT_EXIT_TYPE
+	send_msg(raw_in, msg)
 	check_updates()
-	sys.exit('update')
+	GAME_OVER = True
+	BOT_EXIT_TYPE = status
+
+def cmd_update(raw_in):
+	raw_bot_restart(raw_in, 'Let\'s update!', 'update')
 	
 def cmd_restart(raw_in):
-	send_msg(raw_in,'Let\'s restart!')
-	check_updates()
-	sys.exit('restart')
+	raw_bot_restart(raw_in, 'Let\'s restart!', 'restart')
 
 def cmd_quit(raw_in):
-	send_msg(raw_in,'See Ya!')
-	check_updates()
-	sys.exit('exit')
+	raw_bot_restart(raw_in, 'See Ya!', 'exit')
 
 commands = [['update', cmd_update, True, 'raw', 'Update bot from repository.'],
 			['restart', cmd_restart, True, 'raw', 'Restart bot.'],

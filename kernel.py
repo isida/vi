@@ -757,18 +757,20 @@ base_type          = 'NoDB'                           # Bot's base type
 www_get_timeout    = 15                               # Timeout for web requests
 size_overflow      = 262144                           # Web page limit in bytes
 #http_proxy         = {'host':'127.0.0.1','port':3128,'user':None,'password':None}
-#                                                   # Proxy settings
+#                                                     # Proxy settings
 user_agent         = 'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'
-#                                                   # User agent for web requests
+#                                                     # User agent for web requests
 MIN_TIMEOUT        = 1                                # Minimal timeout between request updates
 MAX_TIMEOUT        = 15                               # Maximal timeout between request updates
 TIMEOUT            = 1                                # Default timeout between request updates
 LAST_MESSAGE       = time.time()                      # Last message time
 TIMEOUT_DIFF       = 60                               # Little sleep every 60 seconds
 TIMEOUT_STEP       = 1.3                              # Size of update time sleep
-CYCLES             = 0
-THREAD_COUNT       = 0
-THREAD_ERROR_COUNT = 0
+CYCLES             = 0                                # Work cycles
+THREAD_COUNT       = 0                                # Executed threads
+THREAD_ERROR_COUNT = 0                                # Threads with error
+GAME_OVER          = False                            # Bot's status
+BOT_EXIT_TYPE      = ''                               # Reason for bot's kernel exit
 
 # --- Init ------------------------------------------------------------------- #
 try:
@@ -830,9 +832,15 @@ pprint('-'*50,'blue')
 pprint('Let\'s begin!','white')
 
 # --- Main cycle ------------------------------------------------------------- #
-while True:
+while not GAME_OVER:
 	try:
 		check_updates()
+		if (time.time() - LAST_MESSAGE) > TIMEOUT_DIFF and TIMEOUT <= MAX_TIMEOUT:
+			TIMEOUT = TIMEOUT * TIMEOUT_STEP
+			LAST_MESSAGE = time.time()
+			pprint('*** Sleep time: %.02f' % TIMEOUT, 'brown')
+		CYCLES += 1
+		time.sleep(TIMEOUT)
 	except KeyboardInterrupt:
 		pprint('Shutdown by CTRL+C...','bright_red')
 		time.sleep(1)
@@ -846,11 +854,7 @@ while True:
 		logging.exception(' [%s] ' % timeadd(tuple(time.localtime())))
 		if HALT_ON_EXCEPTION:
 			raise
-	if (time.time() - LAST_MESSAGE) > TIMEOUT_DIFF and TIMEOUT <= MAX_TIMEOUT:
-		TIMEOUT = TIMEOUT * TIMEOUT_STEP
-		LAST_MESSAGE = time.time()
-		pprint('*** Sleep time: %.02f' % TIMEOUT, 'brown')
-	CYCLES += 1
-	time.sleep(TIMEOUT)
+
+sys.exit(BOT_EXIT_TYPE)
 
 # The end is near!
