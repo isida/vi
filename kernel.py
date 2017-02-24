@@ -312,6 +312,34 @@ def get_bot_version():
 		bV = '%s-%s' % (botVersionDef, base_type)
 	return bV
 
+# Get OS version
+def get_os_version():
+	iSys = sys.platform
+	iOs = os.name
+	isidaPyVer = '%s [%s]' % (sys.version.split(' (')[0],sys.version.split(')')[0].split(', ')[1])
+	if iOs == 'posix':
+		osInfo = os.uname()
+		isidaOs = '%s %s-%s / Python %s' % (osInfo[0],osInfo[2],osInfo[4],isidaPyVer)
+	elif iSys == 'win32':
+		def get_registry_value(key, subkey, value):
+			import _winreg
+			key = getattr(_winreg, key)
+			handle = _winreg.OpenKey(key, subkey)
+			(value, type) = _winreg.QueryValueEx(handle, value)
+			return value
+		def get(key):
+			return get_registry_value("HKEY_LOCAL_MACHINE", "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",key)
+		osInfo = ' '.join(get("ProductName").split()[:3])
+		buildInfo = get("CurrentBuildNumber")
+		try:
+			spInfo = get("CSDVersion")
+			isidaOs = '%s %s [%s] / Python %s' % (osInfo,spInfo,buildInfo,isidaPyVer)
+		except:
+			isidaOs = '%s [%s] / Python %s' % (osInfo,buildInfo,isidaPyVer)
+	else:
+		isidaOs = 'unknown'
+	return isidaOs
+	
 # Get color by name on Linux
 def get_color(c):
 	color = os.environ.has_key('TERM')
@@ -559,7 +587,8 @@ def check_updates():
 				CMD = CMD[1:]
 			if CMD.startswith('%s ' % c[0]) or CMD == c[0] or \
 				CMD == '%s@%s' % (c[0], BOT_NAME) or \
-				CMD.startswith('%s@%s ' % (c[0], BOT_NAME)):
+				CMD.startswith('%s@%s ' % (c[0], BOT_NAME)) or \
+				CMD.startswith('@%s %s' % (BOT_NAME, c[0])):
 				if ALLOW:
 					if c[3] == 'raw':
 						c[1](msg_in)
@@ -747,7 +776,7 @@ if is_win32:
 	win_console_color = ctypes.windll.Kernel32.GetStdHandle(ctypes.c_ulong(0xfffffff5))
 
 pprint('-'*50,'blue')
-pprint('%s %s' % (botName, get_bot_version()), 'bright_cyan')
+pprint('%s %s // %s' % (botName, get_bot_version(), get_os_version()), 'bright_cyan')
 pprint('-'*50,'blue')
 pprint('*** Init enviroment succed', 'white')
 

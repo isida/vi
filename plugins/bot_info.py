@@ -22,9 +22,9 @@
 # --------------------------------------------------------------------------- #
 
 def cmd_bot_info(raw_in):
-	msg = '%s %s' % (botName, get_bot_version())
+	msg = '%s %s\n%s' % (botName, get_bot_version(), get_os_version().replace(' / ','\n'))
 	send_msg(raw_in,msg)
 
-commands = [['bot_info', cmd_bot_info, True, 'raw', 'Bot\'s info.']]
+commands = [['bot_info', cmd_bot_info, False, 'raw', 'Bot\'s info.']]
 
 # The end is near!
