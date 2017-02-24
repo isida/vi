@@ -455,8 +455,8 @@ def remove_sub_space(t):
 # Send message
 def send_msg(raw_in, msg, parse_mode = 'HTML'):
 	global LAST_MESSAGE, TIMEOUT
-	if parse_mode == 'HTML':
-		msg = html_escape_soft(msg)
+	#if parse_mode == 'HTML':
+	#	msg = html_escape_soft(msg)
 	MSG = { 'chat_id': raw_in['message']['chat'].get('id',''),
 			'text': msg,
 			'parse_mode': parse_mode }
@@ -653,7 +653,7 @@ def shell_execute(cmd):
 			error_answ = os.system('%s > %s 2>&1' % (cmd.encode('utf-8'),tmp_file))
 			if not error_answ:
 				try:
-					body = readfile(tmp_file)
+					body = html_escape_soft(readfile(tmp_file))
 				except:
 					body = '⚠️ Command execution error.'
 				if len(body):
@@ -664,7 +664,7 @@ def shell_execute(cmd):
 			else:
 				result = '⚠️ Command execution error.'
 				try:
-					result += '\n' + readfile(tmp_file)
+					result += '\n' + html_escape_soft(readfile(tmp_file))
 				except:
 					pass
 		except Exception, MSG:

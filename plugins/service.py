@@ -37,8 +37,16 @@ def cmd_restart(raw_in):
 def cmd_quit(raw_in):
 	raw_bot_restart(raw_in, 'See Ya!', 'exit')
 
+def cmd_last_update(raw_in):
+	try:
+		msg = '🔄 Last update log:\n<pre>%s</pre>' % html_escape_soft(readfile(updatelog_file))
+	except:
+		msg = 'Update log not found.'
+	send_msg(raw_in, msg)
+
 commands = [['update', cmd_update, True, 'raw', 'Update bot from repository.'],
 			['restart', cmd_restart, True, 'raw', 'Restart bot.'],
-			['quit', cmd_quit, True, 'raw', 'Shutdown bot.']]
+			['quit', cmd_quit, True, 'raw', 'Shutdown bot.'],
+			['last', cmd_last_update, False, 'raw', 'Show last update info.']]
 
 # The end is near!
