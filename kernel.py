@@ -455,6 +455,8 @@ def remove_sub_space(t):
 # Send message
 def send_msg(raw_in, msg, parse_mode = 'HTML'):
 	global LAST_MESSAGE, TIMEOUT
+	if parse_mode == 'HTML':
+		msg = html_escape_soft(msg)
 	MSG = { 'chat_id': raw_in['message']['chat'].get('id',''),
 			'text': msg,
 			'parse_mode': parse_mode }
@@ -581,6 +583,7 @@ def check_updates():
 			_LAST_NAME, CMD]]),'cyan')
 		# name, proc, is_owner, data_type
 		#commands = ['whoami', cmd_whoami, False, 'raw']
+		# Command parser!
 		IS_COMMAND = False
 		for c in COMMANDS:
 			if c[2] and IS_OWNER:
@@ -591,10 +594,10 @@ def check_updates():
 				ALLOW = False
 			if CMD.startswith('/'):
 				CMD = CMD[1:]
-			if CMD.startswith('%s ' % c[0]) or CMD == c[0] or \
-				CMD == '%s@%s' % (c[0], BOT_NAME) or \
-				CMD.startswith('%s@%s ' % (c[0], BOT_NAME)) or \
-				CMD.startswith('@%s %s' % (BOT_NAME, c[0])):
+			if CMD.lower().startswith('%s ' % c[0]) or CMD.lower() == c[0] or \
+				CMD.lower() == '%s@%s' % (c[0], BOT_NAME) or \
+				CMD.lower().startswith('%s@%s ' % (c[0], BOT_NAME)) or \
+				CMD.lower().startswith('@%s %s' % (BOT_NAME, c[0])):
 				if ALLOW:
 					if c[3] == 'raw':
 						thr(c[1], (msg_in,), CMD)
@@ -650,7 +653,7 @@ def shell_execute(cmd):
 			error_answ = os.system('%s > %s 2>&1' % (cmd.encode('utf-8'),tmp_file))
 			if not error_answ:
 				try:
-					body = html_escape_soft(readfile(tmp_file))
+					body = readfile(tmp_file)
 				except:
 					body = '⚠️ Command execution error.'
 				if len(body):
@@ -661,7 +664,7 @@ def shell_execute(cmd):
 			else:
 				result = '⚠️ Command execution error.'
 				try:
-					result += '\n' + html_escape_soft(readfile(tmp_file))
+					result += '\n' + readfile(tmp_file)
 				except:
 					pass
 		except Exception, MSG:
