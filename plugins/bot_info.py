@@ -22,7 +22,7 @@
 # --------------------------------------------------------------------------- #
 
 def cmd_bot_info(raw_in):
-	msg = '%s %s\n%s' % (botName, get_bot_version(), get_os_version().replace(' / ','\n'))
+	msg = '🤖 %s %s\n🖥️ %s' % (botName, get_bot_version(), get_os_version().replace(' / ','\n🐍 '))
 	send_msg(raw_in,msg)
 
 commands = [['bot_info', cmd_bot_info, False, 'raw', 'Bot\'s info.']]
