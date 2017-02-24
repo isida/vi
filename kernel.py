@@ -77,11 +77,11 @@ class KThread(threading.Thread):
 
 # Execute new thread
 def thr(func,param,name):
-	global th_cnt, thread_error_count, sema
-	th_cnt += 1
+	global THREAD_COUNT, THREAD_ERROR_COUNT, sema
+	THREAD_COUNT += 1
 	try:
 		tmp_th = KThread(group=None,target=log_execute,name='%s_%s' % \
-						(th_cnt,name),args=(func,param))
+						(THREAD_COUNT,name),args=(func,param))
 		tmp_th.start()
 	except SystemExit:
 		pass
@@ -91,7 +91,7 @@ def thr(func,param,name):
 		except:
 			MSG = unicode(MSG)
 		if 'thread' in MSG.lower():
-			thread_error_count += 1
+			THREAD_ERROR_COUNT += 1
 		else:
 			logging.exception(' [%s] %s' % (timeadd(tuple(time.localtime())), \
 								unicode(func)))
@@ -185,6 +185,12 @@ def smart_encode(text,enc):
 		except:
 			pass
 	return tx
+
+# Soft escape html
+def html_escape_soft(text):
+	for tmp in (('<','&lt;'),('>','&gt;')):
+		text = text.replace(tmp[0], tmp[1])
+	return text
 
 # Read file
 def readfile(filename):
@@ -447,11 +453,11 @@ def remove_sub_space(t):
 	return ''.join([['?',l][l>=' ' or l in '\t\r\n'] for l in unicode(t)])
 
 # Send message
-def send_msg(raw_in, msg):
+def send_msg(raw_in, msg, parse_mode = 'HTML'):
 	global LAST_MESSAGE, TIMEOUT
 	MSG = { 'chat_id': raw_in['message']['chat'].get('id',''),
 			'text': msg,
-			'parse_mode': 'HTML' }
+			'parse_mode': parse_mode }
 	request = requests.post(API_URL % 'sendMessage', data=MSG)
 	LAST_MESSAGE = time.time()
 	TIMEOUT = MIN_TIMEOUT
@@ -591,7 +597,7 @@ def check_updates():
 				CMD.startswith('@%s %s' % (BOT_NAME, c[0])):
 				if ALLOW:
 					if c[3] == 'raw':
-						c[1](msg_in)
+						thr(c[1], (msg_in,), CMD)
 					elif c[3] in ['less', 'all']:
 						less = CMD[len(c[0]):].strip()
 						if less.startswith('@%s' % BOT_NAME):
@@ -599,7 +605,7 @@ def check_updates():
 						if c[3] == 'less' and not less:
 							send_msg(msg_in,'⚠️ Required parametr missed!')
 						else:
-							c[1](msg_in, less)
+							thr(c[1], (msg_in, less), CMD)
 				else:
 					send_msg(msg_in,'🔒 Locked! Command allowed only for bot\'s owner.')
 				IS_COMMAND = True
@@ -729,38 +735,40 @@ rmass = (('&','&amp;'),('\"','&quot;'),('\'','&apos;'),('~','&tilde;'),
 		(u'↔','&harr;'),(u'↵','&crarr;'),(u'⌈','&lceil;'),(u'⌉','&rceil;'),
 		(u'⌊','&lfloor;'),(u'⌋','&rfloor'),(u'◊','&loz;'),(u'♠','&spades;'),
 		(u'♣','&clubs;'),(u'♥','&hearts;'),(u'♦','&diams;'))
-TELEGRAM_API_URL = 'https://api.telegram.org/bot%s' # Bot apt URL
-SETTING_FOLDER   = 'settings/%s'                    # Setting folder
-PLUGIN_FOLDER    = 'plugins/%s'                     # Plugins folder
-DATA_FOLDER      = 'data/%s'                        # Data folder
-TMP_FOLDER       = DATA_FOLDER % 'tmp/%s'
-ver_file         = TMP_FOLDER % 'version'          # Bot's version file
-SYSLOG_FOLDER    = DATA_FOLDER % 'syslog/%s'        # Syslogs folder
-CONFIG_FILE      = SETTING_FOLDER % 'config.ini'    # Config filename
-LOG_FILENAME     = SYSLOG_FOLDER % 'error.txt'      # Error logs
-last_logs_store  = []                               # Last logs
-last_logs_size   = 20                               # Last logs count
-DEBUG_CONSOLE    = True                             # Show debugging in console
-DEBUG_LOG        = True                             # Logging all bot's actions
-CONFIG_MAIN      = 'main'                           # Main section name in config
-CONFIG_DEBUG     = 'debug'                          # Debug section name in config
-CONFIG_OWNER     = 'owner'                          # Owner section name in config
-botName          = 'iSida'                          # Bot's name
-botVersionDef    = '6.0'                            # Bot's version
-base_type        = 'NoDB'                           # Bot's base type
-www_get_timeout  = 15                               # Timeout for web requests
-size_overflow    = 262144                           # Web page limit in bytes
-#http_proxy       = {'host':'127.0.0.1','port':3128,'user':None,'password':None}
+TELEGRAM_API_URL   = 'https://api.telegram.org/bot%s' # Bot apt URL
+SETTING_FOLDER     = 'settings/%s'                    # Setting folder
+PLUGIN_FOLDER      = 'plugins/%s'                     # Plugins folder
+DATA_FOLDER        = 'data/%s'                        # Data folder
+TMP_FOLDER         = DATA_FOLDER % 'tmp/%s'
+ver_file           = TMP_FOLDER % 'version'          # Bot's version file
+SYSLOG_FOLDER      = DATA_FOLDER % 'syslog/%s'        # Syslogs folder
+CONFIG_FILE        = SETTING_FOLDER % 'config.ini'    # Config filename
+LOG_FILENAME       = SYSLOG_FOLDER % 'error.txt'      # Error logs
+last_logs_store    = []                               # Last logs
+last_logs_size     = 20                               # Last logs count
+DEBUG_CONSOLE      = True                             # Show debugging in console
+DEBUG_LOG          = True                             # Logging all bot's actions
+CONFIG_MAIN        = 'main'                           # Main section name in config
+CONFIG_DEBUG       = 'debug'                          # Debug section name in config
+CONFIG_OWNER       = 'owner'                          # Owner section name in config
+botName            = 'iSida'                          # Bot's name
+botVersionDef      = '6.0'                            # Bot's version
+base_type          = 'NoDB'                           # Bot's base type
+www_get_timeout    = 15                               # Timeout for web requests
+size_overflow      = 262144                           # Web page limit in bytes
+#http_proxy         = {'host':'127.0.0.1','port':3128,'user':None,'password':None}
 #                                                   # Proxy settings
-user_agent       = 'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'
+user_agent         = 'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'
 #                                                   # User agent for web requests
-MIN_TIMEOUT      = 1                                # Minimal timeout between request updates
-MAX_TIMEOUT      = 15                               # Maximal timeout between request updates
-TIMEOUT          = 1                                # Default timeout between request updates
-LAST_MESSAGE     = time.time()                      # Last message time
-TIMEOUT_DIFF     = 60                               # Little sleep every 60 seconds
-TIMEOUT_STEP     = 1.3                              # Size of update time sleep
-CYCLES           = 0
+MIN_TIMEOUT        = 1                                # Minimal timeout between request updates
+MAX_TIMEOUT        = 15                               # Maximal timeout between request updates
+TIMEOUT            = 1                                # Default timeout between request updates
+LAST_MESSAGE       = time.time()                      # Last message time
+TIMEOUT_DIFF       = 60                               # Little sleep every 60 seconds
+TIMEOUT_STEP       = 1.3                              # Size of update time sleep
+CYCLES             = 0
+THREAD_COUNT       = 0
+THREAD_ERROR_COUNT = 0
 
 # --- Init ------------------------------------------------------------------- #
 try:
