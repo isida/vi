@@ -10,9 +10,9 @@ Required:
 More info:
 * Official [site](http://isida.dsy.name) 
 * Information about Installation or Update at [WIKI](http://isida.dsy.name/wiki)
-* Xmpp conference: isida@conference.jabber.ru
 * Telegram chat: https://t.me/isida_bot_dev
 * Bot: https://t.me/isida_bot
+* Xmpp conference: isida@conference.jabber.ru (deprecated)
 
 ------
 

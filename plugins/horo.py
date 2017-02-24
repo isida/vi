@@ -27,23 +27,28 @@ horodb  = ['aries', 'taurus', 'gemini', 'cancer', \
 		   'sagittarius', 'capricorn', 'aquarius', 'pisces']
 horoemo = ['♈️', '♉️', '♊️', '♋️', '♌️', '♍️', '♎️', '♏️', '♐️', '♑️', '♒️', '♓️']
 
+horo_dates = ['21.03-19.04', '20.04-20.05', '21.05-20.06', \
+			  '21.06-22.07', '23.07-22.08', '23.08-22.09', \
+			  '23.09-22.10', '23.10-21.11', '22.11-21.12', \
+			  '22.12-19.01', '20.01-18.02', '19.02-20.03']
+
 def cmd_horoscope(raw_in, text):
 	param = text.strip().lower()
 	msg = 'What?'
 	if param:
 		if param == 'list':
-			msg = ', '.join(['%s (%s)' % (L(t).capitalize(),t.capitalize()) for t in horodb])
+			msg = '\n'.join(['%s %s' % \
+                (horoemo[i], t.capitalize()) for i,t in enumerate(horodb)])
 		if param == 'date':
-			horo_dates = ['21.03-19.04', '20.04-20.05', '21.05-20.06', \
-						  '21.06-22.07', '23.07-22.08', '23.08-22.09', \
-						  '23.09-22.10', '23.10-21.11', '22.11-21.12', \
-						  '22.12-19.01', '20.01-18.02', '19.02-20.03']
-			msg = 'List of dates:\n%s' % '\n'.join([u'%s … %s %s' % \
+			msg = 'List of dates:\n%s' % '\n'.join(['%s … %s %s' % \
                 (horo_dates[i], horoemo[i], t.capitalize()) for i,t in enumerate(horodb)])
 		if param in horodb:
 			body = html_encode(load_page('http://horo.mail.ru/prediction/%s/today' % param))
 			try:
-				msg = unhtml_hard(re.findall('<div class="article__item.*?>(.+?)</div>',body,re.S|re.I|re.U)[0].strip())
+				msg = '%s %s (%s)\n%s' % (horoemo[horodb.index(param)], \
+					param.capitalize(), \
+					horo_dates[horodb.index(param)], \
+					unhtml_hard(re.findall('<div class="article__item.*?>(.+?)</div>',body,re.S|re.I|re.U)[0].strip()))
 			except:
 				raise
 				msg = 'Unknown error!'
