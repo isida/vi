@@ -34,10 +34,13 @@ def cmd_show_error(raw_in, text):
 		log_len = len(log)
 		if cmd > log_len:
 			cmd = log_len
-		msg = '🐞 Total Error(s): %s' % (log_len - 1)
-		if text != '':
-			msg += '\n%s' % '\n'.join('<pre>%s</pre>' % html_escape_soft(t) \
-				for t in log[log_len-cmd:log_len])
+		if log_len > 1:
+			msg = '🐞 Total Error(s): %s' % (log_len - 1)
+			if text != '':
+				msg += '\n%s' % '\n'.join('<pre>%s</pre>' % html_escape_soft(t) \
+					for t in log[log_len-cmd:log_len])
+		else:
+			msg = '👍🏻 No Errors!'
 	else:
 		msg = '👍🏻 No Errors!'
 	send_msg(raw_in, msg)
