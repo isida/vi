@@ -43,7 +43,7 @@ def cmd_show_error(raw_in, text):
 			msg = '👍🏻 No Errors!'
 	else:
 		msg = '👍🏻 No Errors!'
-	send_msg(raw_in, msg, '')
+	send_msg(raw_in, msg)
 
 commands = [['error', cmd_show_error, True, 'all', 'Show errors.']]
 
