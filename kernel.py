@@ -650,7 +650,7 @@ def shell_execute(cmd):
 			error_answ = os.system('%s > %s 2>&1' % (cmd.encode('utf-8'),tmp_file))
 			if not error_answ:
 				try:
-					body = readfile(tmp_file)
+					body = html_escape_soft(readfile(tmp_file))
 				except:
 					body = '⚠️ Command execution error.'
 				if len(body):
@@ -661,7 +661,7 @@ def shell_execute(cmd):
 			else:
 				result = '⚠️ Command execution error.'
 				try:
-					result += '\n' + readfile(tmp_file)
+					result += '\n' + html_escape_soft(readfile(tmp_file))
 				except:
 					pass
 		except Exception, MSG:
