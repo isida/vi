@@ -647,7 +647,7 @@ def shell_execute(cmd):
 	else:
 		tmp_file = '%s.tmp' % int(time.time())
 		try:
-			error_answ = os.system('%s > %s' % (cmd.encode('utf-8'),tmp_file))
+			error_answ = os.system('%s > %s 2>&1' % (cmd.encode('utf-8'),tmp_file))
 			if not error_answ:
 				try:
 					body = readfile(tmp_file)
@@ -660,6 +660,10 @@ def shell_execute(cmd):
 					result = 'ok'
 			else:
 				result = '⚠️ Command execution error.'
+				try:
+					result += '\n' + readfile(tmp_file)
+				except:
+					pass
 		except Exception, MSG:
 			try:
 				MSG = str(MSG)
