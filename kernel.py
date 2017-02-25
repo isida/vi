@@ -618,19 +618,25 @@ def check_updates():
 			if (msg_in['message']['text'].lower().startswith('@%s ' % BOT_NAME) and \
 					msg_in['message'].has_key('chat') and \
 					msg_in['message']['chat'].has_key('type') and \
-					msg_in['message']['chat'].get('type','') == 'group') or \
+					msg_in['message']['chat'].get('type','') in ['group', 'supergroup']) or \
 					(msg_in['message'].has_key('reply_to_message') and \
 					msg_in['message']['reply_to_message'].has_key('from') and \
 					msg_in['message']['reply_to_message']['from'].has_key('username') and \
 					msg_in['message']['reply_to_message']['from'].get('username','').lower() == BOT_NAME):
-				text = msg_in['message']['text'][len(BOT_NAME)+1:].strip()
+				text = msg_in['message']['text']
+				if text.lower().startswith('@%s ' % BOT_NAME):
+					text = text[len(BOT_NAME)+1:].strip()
+				pprint('>>> Chat: %s' % text, 'green')
 				msg = getAnswer(msg_in, text)
+				pprint('<<< Chat: %s' % msg, 'bright_green')
 				send_msg(msg_in, msg)
 			elif (msg_in['message'].has_key('chat') and \
 					msg_in['message']['chat'].has_key('type') and \
 					msg_in['message']['chat'].get('type','') == 'private'):
 				text = msg_in['message'].get('text').strip()
+				pprint('>>> Chat: %s' % text, 'green')
 				msg = getAnswer(msg_in, text)
+				pprint('<<< Chat: %s' % msg, 'bright_green')
 				send_msg(msg_in, msg)
 			else:
 				pass
