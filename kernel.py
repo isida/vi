@@ -603,7 +603,7 @@ def check_updates():
 						thr(c[1], (msg_in,), CMD)
 					elif c[3] in ['less', 'all']:
 						less = CMD[len(c[0]):].strip()
-						if less.startswith('@%s' % BOT_NAME):
+						if less.lower().startswith('@%s' % BOT_NAME):
 							less = less[len(BOT_NAME)+1:].strip()
 						if c[3] == 'less' and not less:
 							send_msg(msg_in,'⚠️ Required parametr missed!')
@@ -615,14 +615,14 @@ def check_updates():
 				break
 
 		if not IS_COMMAND:
-			if (msg_in['message']['text'].startswith('@%s ' % BOT_NAME) and \
+			if (msg_in['message']['text'].lower().startswith('@%s ' % BOT_NAME) and \
 					msg_in['message'].has_key('chat') and \
 					msg_in['message']['chat'].has_key('type') and \
 					msg_in['message']['chat'].get('type','') == 'group') or \
 					(msg_in['message'].has_key('reply_to_message') and \
 					msg_in['message']['reply_to_message'].has_key('from') and \
 					msg_in['message']['reply_to_message']['from'].has_key('username') and \
-					msg_in['message']['reply_to_message']['from'].get('username','') == BOT_NAME):
+					msg_in['message']['reply_to_message']['from'].get('username','').lower() == BOT_NAME):
 				text = msg_in['message']['text'][len(BOT_NAME)+1:].strip()
 				msg = getAnswer(msg_in, text)
 				send_msg(msg_in, msg)
@@ -812,7 +812,7 @@ if CONFIG_OWNER not in SECTIONS:
 	Error('Owner options not found in %s' % CONFIG_FILE)
 
 CONFIG_API_TOKEN  = CONFIG.get(CONFIG_MAIN,'token')
-BOT_NAME          = CONFIG.get(CONFIG_MAIN,'bot_name')
+BOT_NAME          = CONFIG.get(CONFIG_MAIN,'bot_name').lower()
 PARANOIA_MODE     = get_config_bin(CONFIG, CONFIG_MAIN, 'paranoia_mode')
 DEBUG_LOG         = get_config_bin(CONFIG, CONFIG_DEBUG, 'logging')
 DEBUG_CONSOLE     = get_config_bin(CONFIG, CONFIG_DEBUG, 'console')
