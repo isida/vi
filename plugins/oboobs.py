@@ -23,14 +23,16 @@
 
 def cmd_oboobs(raw_in):
 	try:
-		msg = 'http://media.oboobs.ru/%s' % json.loads(load_page('http://api.oboobs.ru/noise/1/'))[0]['preview']
+		data = json.loads(load_page('http://api.oboobs.ru/noise/1/'))[0]
+		msg = '<a href="http://media.oboobs.ru/%s">#%s</a>' % (data['preview'], data['id'])
 	except:
 		msg = 'Error!'
 	send_msg(raw_in,msg)
 
 def cmd_obutts(raw_in):
 	try:
-		msg = 'http://media.obutts.ru/%s' % json.loads(load_page('http://api.obutts.ru/noise/1/'))[0]['preview']
+		data = json.loads(load_page('http://api.obutts.ru/noise/1/'))[0]
+		msg = '<a href="http://media.obutts.ru/%s">#%s</a>' % (data['preview'], data['id'])
 	except:
 		msg = 'Error!'
 	send_msg(raw_in,msg)
