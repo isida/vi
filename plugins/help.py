@@ -28,7 +28,7 @@ def cmd_help(raw_in, text):
 	IS_OWNER = raw_in['message']['from'].get('id', '') == OWNER_ID
 	text = text.lower().strip()
 	if not text:
-		msg = ['iSida Jabber Bot', 'http://isida.dsy.name',
+		msg = ['iSida telegram bot', 'http://isida.dsy.name',
 				'© 2oo9-%s Disabler Production Lab.' % str(time.localtime()[0]).replace('0','o'),
 				'Commands help: /help command | *',
 				'Available commands list: /commands']
