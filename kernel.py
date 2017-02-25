@@ -453,13 +453,16 @@ def remove_sub_space(t):
 	return ''.join([['?',l][l>=' ' or l in '\t\r\n'] for l in unicode(t)])
 
 # Send message
-def send_msg(raw_in, msg, parse_mode = 'HTML'):
+def send_msg(raw_in, msg, parse_mode = 'HTML', custom = None):
 	global LAST_MESSAGE, TIMEOUT
 	#if parse_mode == 'HTML':
 	#	msg = html_escape_soft(msg)
 	MSG = { 'chat_id': raw_in['message']['chat'].get('id',''),
 			'text': msg,
 			'parse_mode': parse_mode }
+	if custom:
+		for t in custom.keys():
+			MSG[t] = custom[t]
 	request = requests.post(API_URL % 'sendMessage', data=MSG)
 	LAST_MESSAGE = time.time()
 	TIMEOUT = MIN_TIMEOUT

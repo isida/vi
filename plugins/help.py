@@ -21,21 +21,56 @@
 #                                                                             #
 # --------------------------------------------------------------------------- #
 
-def cmd_help(raw_in):
-	def get_su(t):
-		return ['','⚠️'][t]
+def get_su(t):
+	return ['','⚠️'][t]
+	
+def cmd_help(raw_in, text):
+	IS_OWNER = raw_in['message']['from'].get('id', '') == OWNER_ID
+	text = text.lower().strip()
+	if not text:
+		msg = ['iSida Jabber Bot', 'http://isida.dsy.name',
+				'© 2oo9-%s Disabler Production Lab.' % str(time.localtime()[0]).replace('0','o'),
+				'Commands help: /help command | *',
+				'Available commands list: /commands']
+		msg = '\n'.join(msg)
+		send_msg(raw_in, msg, custom = {'disable_web_page_preview': True})
+	else:
+		rez = []
+		if text == '*':
+			text = ''
+		for cmd in COMMANDS:
+			if (text in cmd[0].lower() or text in cmd[4].lower()) \
+				and (IS_OWNER or not cmd[2]):
+				if IS_OWNER:
+					rez.append((cmd[0], cmd[4], get_su(cmd[2])))
+				else:
+					rez.append((cmd[0], cmd[4], ''))
+		if rez:
+			msg = 'Found commands:\n'
+			msg += '\n'.join('/%s - %s %s' % t for t in rez)
+		else:
+			msg = 'Not found.'
+		send_msg(raw_in, msg)
+
+def cmd_commands(raw_in):
 	IS_OWNER = raw_in['message']['from'].get('id', '') == OWNER_ID
 	rez = []
 	for cmd in COMMANDS:
 		if IS_OWNER:
-			rez.append((cmd[0],cmd[4],get_su(cmd[2])))
+			rez.append((cmd[0], get_su(cmd[2])))
 		elif not cmd[2]:
-			rez.append((cmd[0],cmd[4],''))
+			rez.append((cmd[0], ''))
 	rez.sort()
 	msg = 'I know commands:\n'
-	msg += '\n'.join('/%s - %s %s' % t for t in rez)
+	msg += ' | '.join('/%s %s' % t for t in rez)
 	send_msg(raw_in, msg)
 
-commands = [['help', cmd_help, False, 'raw', 'Bot\'s help.']]
+def cmd_start(raw_in):
+	msg = 'Hi! I\'m iSida, telegram bot. Ex jabber bot. Use /help for begin.'
+	send_msg(raw_in, msg)
+
+commands = [['help', cmd_help, False, 'all', 'Bot\'s help.'],
+			['start', cmd_start, False, 'raw', 'Bot\'s begin info.'],
+			['commands', cmd_commands, False, 'raw', 'Bot\'s commands list.']]
 
 # The end is near!
