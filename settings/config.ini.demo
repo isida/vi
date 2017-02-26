@@ -8,6 +8,7 @@ logging: true
 console: true
 json: false
 halt_on_exception: false
+max_timeout: 15
 
 [owner]
 id: 12345678

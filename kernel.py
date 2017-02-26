@@ -828,6 +828,10 @@ DEBUG_CONSOLE     = get_config_bin(CONFIG, CONFIG_DEBUG, 'console')
 DEBUG_JSON        = get_config_bin(CONFIG, CONFIG_DEBUG, 'json')
 HALT_ON_EXCEPTION = get_config_bin(CONFIG, CONFIG_DEBUG, 'halt_on_exception')
 OWNER_ID          = get_config_int(CONFIG, CONFIG_OWNER, 'id')
+try:
+	MAX_TIMEOUT   = get_config_bin(CONFIG, CONFIG_OWNER, 'max_timeout')
+except:
+	pass
 
 API_URL = TELEGRAM_API_URL % CONFIG_API_TOKEN + '/%s'
 
