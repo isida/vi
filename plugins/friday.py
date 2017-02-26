@@ -4,7 +4,7 @@
 # --------------------------------------------------------------------------- #
 #                                                                             #
 #    iSida bot VI plugin                                                      #
-#    Copyright (C) diSabler <dsy@dsy.name>                                    #
+#    Copyright (C) VitaliyS <hetleven@yandex.ua>                                    #
 #                                                                             #
 #    This program is free software: you can redistribute it and/or modify     #
 #    it under the terms of the GNU General Public License as published by     #
@@ -21,23 +21,29 @@
 #                                                                             #
 # --------------------------------------------------------------------------- #
 
-def cmd_oboobs(raw_in):
-	try:
-		data = json.loads(load_page('http://api.oboobs.ru/noise/1/'))[0]
-		msg = '<a href="http://media.oboobs.ru/%s">#%s</a>' % (data['preview'], data['id'])
-	except:
-		msg = 'Error!'
-	send_msg(raw_in,msg)
+def cmd_friday(raw_in):
+    day = datetime.datetime.isoweekday(datetime.datetime.now())
+    date_file = DATA_FOLDER % 'friday.txt'
+    if os.path.isfile(date_file):
+        frases = readfile(date_file).decode('UTF')
+        frases = map(lambda x: x.split(' || '), frases.split('\n'))
+        week = [u'понедельник', u'вторник', u'среда', u'четверг', u'пятница', u'суббота', u'воскресенье']
+        if not frases:
+            msg = 'Read file error.'
+        else:
+            frs = [i[0] for i in frases if str(day) in i[1]]
+            msg = random.choice(frs)
+            if 'user' in msg:
+                msg = msg.replace('user', raw_in['message']['from'].get('username',''))
+            if 'yesterday' in msg:
+                msg = msg.replace('yesterday', week[(day + 5) % 7])
+            if 'tomorrow' in msg:
+                msg = msg.replace('tomorrow', week[day % 7])
+    else:
+        msg = 'Database doesn\'t exist.'
+    send_msg(raw_in, msg)
 
-def cmd_obutts(raw_in):
-	try:
-		data = json.loads(load_page('http://api.obutts.ru/noise/1/'))[0]
-		msg = '<a href="http://media.obutts.ru/%s">#%s</a>' % (data['preview'], data['id'])
-	except:
-		msg = 'Error!'
-	send_msg(raw_in,msg)
 
-commands = [['oboobs', cmd_oboobs, False, 'raw', 'Show random picture from oboobs.ru'],
-			['obutts', cmd_obutts, False, 'raw', 'Show random picture from obutts.ru']]
+commands = [['friday', cmd_friday, False, 'raw', 'Today is Friday']]
 
 # The end is near!
