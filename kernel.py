@@ -474,6 +474,27 @@ def send_msg(raw_in, msg, parse_mode = 'HTML', custom = None):
 	else:
 		return True
 
+# Send photo
+def send_photo(raw_in, photo, caption=None, custom = None):
+	global LAST_MESSAGE, TIMEOUT
+	MSG = { 'chat_id': raw_in['message']['chat'].get('id','') }
+	FLS = {'photo': (photo, open(photo, "rb"))}
+	if caption:
+            MSG['caption'] = caption
+	if custom:
+		for t in custom.keys():
+			MSG[t] = custom[t]
+	request = requests.post(API_URL % 'sendPhoto', data=MSG, files=FLS)
+	LAST_MESSAGE = time.time()
+	TIMEOUT = MIN_TIMEOUT
+	if not request.status_code == 200:
+		pprint('*** Error code on sendPhoto: %s' % request.status_code, 'red')
+		pprint('Raw_in dump:\n%s' % json.dumps(raw_in, indent=2, separators=(',', ': ')), 'red')
+		pprint('Data dump:\n%s' % json.dumps(MSG, indent=2, separators=(',', ': ')), 'red')
+		return False
+	else:
+		return True
+        
 # Open web page
 def get_opener(page_name, parameters=None):
 	socket.setdefaulttimeout(www_get_timeout)
