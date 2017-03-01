@@ -1,4 +1,6 @@
-iSida bot 6th generation. BETA && UNSTABLE!
+![alt text](http://isida.dsy.name/images/isida-logo-v6-big.png "iSida bot")
+
+6th generation. BETA && UNSTABLE!
 ======
 
 Required:
