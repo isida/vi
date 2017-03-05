@@ -452,49 +452,44 @@ def get_config_bin(_config, _section, _name):
 def remove_sub_space(t):
 	return ''.join([['?',l][l>=' ' or l in '\t\r\n'] for l in unicode(t)])
 
-# Send message
-def send_msg(raw_in, msg, parse_mode = 'HTML', custom = None):
+# Send request
+def send_raw(raw_in, method, dt, fl={}):
 	global LAST_MESSAGE, TIMEOUT
+	request = requests.post(API_URL % method, data=dt, files = fl)
+	LAST_MESSAGE = time.time()
+	TIMEOUT = MIN_TIMEOUT
+	if not request.status_code == 200:
+		pprint('*** Error code on %s: %s' % (method, request.status_code), 'red')
+		pprint('Raw_in dump:\n%s' % json.dumps(raw_in, indent=2, separators=(',', ': ')), 'red')
+		pprint('Data dump:\n%s' % json.dumps(dt, indent=2, separators=(',', ': ')), 'red')
+		return False
+	else:
+		return True
+
+# Send message
+def send_msg(raw_in, msg, parse_mode = 'HTML', custom={}):
 	#if parse_mode == 'HTML':
 	#	msg = html_escape_soft(msg)
 	MSG = { 'chat_id': raw_in['message']['chat'].get('id',''),
 			'text': msg,
 			'parse_mode': parse_mode }
-	if custom:
-		for t in custom.keys():
-			MSG[t] = custom[t]
-	request = requests.post(API_URL % 'sendMessage', data=MSG)
-	LAST_MESSAGE = time.time()
-	TIMEOUT = MIN_TIMEOUT
-	if not request.status_code == 200:
-		pprint('*** Error code on sendMessage: %s' % request.status_code, 'red')
-		pprint('Raw_in dump:\n%s' % json.dumps(raw_in, indent=2, separators=(',', ': ')), 'red')
-		pprint('Data dump:\n%s' % json.dumps(MSG, indent=2, separators=(',', ': ')), 'red')
-		return False
-	else:
-		return True
+	MSG.update(custom)
+	return send_raw(raw_in, 'sendMessage', MSG)
 
 # Send photo
-def send_photo(raw_in, photo, caption=None, custom = None):
-	global LAST_MESSAGE, TIMEOUT
+def send_photo(raw_in, photo, custom={}):
 	MSG = { 'chat_id': raw_in['message']['chat'].get('id','') }
 	FLS = {'photo': (photo, open(photo, "rb"))}
-	if caption:
-            MSG['caption'] = caption
-	if custom:
-		for t in custom.keys():
-			MSG[t] = custom[t]
-	request = requests.post(API_URL % 'sendPhoto', data=MSG, files=FLS)
-	LAST_MESSAGE = time.time()
-	TIMEOUT = MIN_TIMEOUT
-	if not request.status_code == 200:
-		pprint('*** Error code on sendPhoto: %s' % request.status_code, 'red')
-		pprint('Raw_in dump:\n%s' % json.dumps(raw_in, indent=2, separators=(',', ': ')), 'red')
-		pprint('Data dump:\n%s' % json.dumps(MSG, indent=2, separators=(',', ': ')), 'red')
-		return False
-	else:
-		return True
-        
+	MSG.update(custom)
+	return send_raw(raw_in, 'sendPhoto', MSG, FLS)  
+
+# Send document
+def send_document(raw_in, document, custom={}):
+	MSG = { 'chat_id': raw_in['message']['chat'].get('id','') }
+	FLS = {'document': (document, open(document, "rb"))}
+	MSG.update(custom)
+	return send_raw(raw_in, 'sendDocument', MSG, FLS) 
+    
 # Open web page
 def get_opener(page_name, parameters=None):
 	socket.setdefaulttimeout(www_get_timeout)
