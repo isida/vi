@@ -93,5 +93,6 @@ data/tmp/isida.pid
 data/tmp/starttime
 data/tmp/version
 plugins/_*.py
+desktop.ini
 
 # The end is near!
