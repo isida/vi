@@ -25,6 +25,7 @@ import datetime
 import calendar
 import chardet
 import ConfigParser
+import feedparser
 import json
 import logging
 import math

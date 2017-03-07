@@ -5,6 +5,7 @@
 
 Required:
 * chardet
+* feedparser
 * requests
 
 ------
@@ -13,6 +14,19 @@ More info:
 * Official [site](http://isida.dsy.name) 
 * Telegram chat: [@isida_bot_dev](https://t.me/isida_bot_dev)
 * Bot: [@isida_bot](https://t.me/isida_bot)
+
+------
+
+Quick start:
+```
+pip install chardet
+pip install feedparser
+pip install requests
+git clone https://github.com/isida/vi.git
+cp settings/config.ini.demo settings/config.ini
+nano settings/config.ini
+python isida.py
+```
 
 ------
 
