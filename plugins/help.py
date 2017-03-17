@@ -28,10 +28,12 @@ def cmd_help(raw_in, text):
 	IS_OWNER = raw_in['message']['from'].get('id', '') == OWNER_ID
 	text = text.lower().strip()
 	if not text:
-		msg = ['🤖 iSida telegram bot', 'http://isida.dsy.name',
+		msg = ['🤖 iSida telegram bot',
 			   '(c) 2oo9-%s Disabler Production Lab.' % str(time.localtime()[0]).replace('0', 'o'),
 			   '🔸 Commands help: /help command | *',
-			   '🔸 Available commands list: /commands']
+			   '🔸 Available commands list: /commands',
+			   '🔸 Dev-chat @isida_bot_dev',
+			   '🔸 Site: http://isida.dsy.name']
 		msg = '\n'.join(msg)
 		send_msg(raw_in, msg, custom = {'disable_web_page_preview': True})
 	else:
@@ -66,7 +68,10 @@ def cmd_commands(raw_in):
 	send_msg(raw_in, msg)
 
 def cmd_start(raw_in):
-	msg = 'Hi! I\'m iSida, telegram bot. Ex jabber bot. Use /help for begin.'
+	msg = ['🤖 Hi! I\'m iSida, telegram bot. Ex jabber bot.',
+		   'Use /help for begin.',
+		   'Join dev-chat @isida_bot_dev']
+	msg = '\n'.join(msg)
 	send_msg(raw_in, msg)
 
 commands = [['help', cmd_help, False, 'all', 'Bot\'s help.'],
