@@ -593,7 +593,11 @@ def check_updates():
 				continue
 
 		IS_OWNER = msg_in['message']['from'].get('id', '') == OWNER_ID
-		CMD = msg_in['message'].get('text', '').strip().replace('_', ' ')
+		CMD = msg_in['message'].get('text', '').strip()
+		splitter = '<%s>' % random.randint(0, 2 ** 32)
+		CMD = CMD.replace(BOT_NAME, splitter)
+		CMD = CMD.replace('_', ' ')
+		CMD = CMD.replace(splitter, BOT_NAME)
 		_ID = msg_in['message']['from'].get('id', '')
 		_USERNAME = msg_in['message']['from'].get('username', '')
 		_FIRST_NAME = msg_in['message']['from'].get('first_name', '')
