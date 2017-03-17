@@ -22,19 +22,19 @@
 # --------------------------------------------------------------------------- #
 
 def cmd_to_drink(raw_in, text):
-	drink_dmas = ['first','second','third','fourth','fifth','sixth','seventh',
-		'eighth','nineth','tenth','eleventh','twelveth','thirteenth',
-		'fourteenth','fivteenth','sixteenth','seventeenth','eighteenth',
-		'nineteenth','twentieth','twenty-first','twenty-second','twenty-third',
-		'twenty-fourth','twenty-fifth','twenty-sixth','twenty-seventh',
-		'twenty-eighth','twenty-nineth','thirtieth','thirty-first']
-	drink_mmas1 = ['january','february','march','april','may','june','july',
-		'august','september','october','november','december']
-	drink_mmas2 = ['January','February','March','April','May','June','July',
-		'August','September','October','November','December']
-	drink_wday = ['monday','tuesday','wendesday','thirsday','friday',
-		'saturday','sunday']
-	drink_lday = ['last','last','Last','last','Last','Last','lAst']
+	drink_dmas = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh',
+		'eighth', 'nineth', 'tenth', 'eleventh', 'twelveth', 'thirteenth',
+		'fourteenth', 'fivteenth', 'sixteenth', 'seventeenth', 'eighteenth',
+		'nineteenth', 'twentieth', 'twenty-first', 'twenty-second', 'twenty-third',
+		'twenty-fourth', 'twenty-fifth', 'twenty-sixth', 'twenty-seventh',
+		'twenty-eighth', 'twenty-nineth', 'thirtieth', 'thirty-first']
+	drink_mmas1 = ['january', 'february', 'march', 'april', 'may', 'june', 'july',
+		'august', 'september', 'october', 'november', 'december']
+	drink_mmas2 = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
+		'August', 'September', 'October', 'November', 'December']
+	drink_wday = ['monday', 'tuesday', 'wendesday', 'thirsday', 'friday',
+		'saturday', 'sunday']
+	drink_lday = ['last', 'last', 'Last', 'last', 'Last', 'Last', 'lAst']
 	date_file = DATA_FOLDER % 'date.txt'
 	if os.path.isfile(date_file):
 		ddate = readfile(date_file).decode('UTF')
@@ -69,13 +69,13 @@ def cmd_to_drink(raw_in, text):
 					try:
 						ttmp = tmp.split(' ')[0].split('.')
 						tday = [ttmp[0]]
-						tday.append(L(drink_dmas[int(ttmp[0])-1],'%s/%s'%(jid,nick)))
+						tday.append(drink_dmas[int(ttmp[0])-1])
 						tmonth = [ttmp[1]]
-						tmonth.append(L(drink_mmas1[int(ttmp[1])-1],'%s/%s'%(jid,nick)))
-						tmonth.append(L(drink_mmas2[int(ttmp[1])-1],'%s/%s'%(jid,nick)))
+						tmonth.append(drink_mmas1[int(ttmp[1])-1])
+						tmonth.append(drink_mmas2[int(ttmp[1])-1])
 						tmonth.append(str(int(ttmp[1])))
-						t = tday.index(L(text[0],'%s/%s'%(jid,nick)))
-						t = tmonth.index(L(text[1],'%s/%s'%(jid,nick)))
+						t = tday.index(text[0])
+						t = tmonth.index(text[1])
 						msg += '\n🔹'+tmp
 					except:
 						pass

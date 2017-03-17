@@ -22,14 +22,14 @@
 # --------------------------------------------------------------------------- #
 
 def cmd_whoami(raw_in):
-	msg =    '🗃 Username: <b>%s</b>' % raw_in['message']['from'].get('username','')
-	msg += '\n📰 Name: <b>%s</b>' % raw_in['message']['from'].get('first_name','')
-	msg += ' <b>%s</b>' % raw_in['message']['from'].get('last_name','')
-	msg += '\n🗂 ID: <b>%s</b>' % raw_in['message']['from'].get('id','')
-	IS_OWNER_TXT = ['No','Yes'][raw_in['message']['from'].get('id','') == OWNER_ID]
+	msg =    '🗃 Username: <b>%s</b>' % raw_in['message']['from'].get('username', '')
+	msg += '\n📰 Name: <b>%s</b>' % raw_in['message']['from'].get('first_name', '')
+	msg += ' <b>%s</b>' % raw_in['message']['from'].get('last_name', '')
+	msg += '\n🗂 ID: <b>%s</b>' % raw_in['message']['from'].get('id', '')
+	IS_OWNER_TXT = ['No', 'Yes'][raw_in['message']['from'].get('id', '') == OWNER_ID]
 	msg += '\n🤖 Bot\'s owner: <b>%s</b>' % IS_OWNER_TXT
 
-	send_msg(raw_in,msg)
+	send_msg(raw_in, msg)
 
 # name, proc, is_owner, data_type
 commands = [['whoami', cmd_whoami, False, 'raw', 'Show info about you.']]

@@ -22,14 +22,14 @@
 # --------------------------------------------------------------------------- #
 
 def get_su(t):
-	return ['','⚠️'][t]
+	return ['', '⚠️'][t]
 	
 def cmd_help(raw_in, text):
 	IS_OWNER = raw_in['message']['from'].get('id', '') == OWNER_ID
 	text = text.lower().strip()
 	if not text:
 		msg = ['🤖 iSida telegram bot', 'http://isida.dsy.name',
-			   '(c) 2oo9-%s Disabler Production Lab.' % str(time.localtime()[0]).replace('0','o'),
+			   '(c) 2oo9-%s Disabler Production Lab.' % str(time.localtime()[0]).replace('0', 'o'),
 			   '🔸 Commands help: /help command | *',
 			   '🔸 Available commands list: /commands']
 		msg = '\n'.join(msg)

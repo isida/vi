@@ -24,7 +24,7 @@
 def cmd_test(raw_in):
 	answer = ['||', 'Passed!', 'I\'m alive!', '👍🏻', '👌🏻']
 	msg = random.choice(answer)
-	send_msg(raw_in,msg)
+	send_msg(raw_in, msg)
 
 commands = [['test', cmd_test, False, 'raw', 'Check bot\'s activity.']]
 

@@ -28,8 +28,8 @@ def cmd_pbrate(raw_in):
         msg = '<b>Privatbank exchange rates</b>\n<pre>Сurrency    Buy    Sale'
         cico = {'RUR': '🇷🇺', 'USD': '🇺🇸', 'EUR': '🇫🇲'}
         for i in res:
-            base_ccy = cico[i[0]] + i[0] 
-            buy = i[1][:5] 
+            base_ccy = cico[i[0]] + i[0]
+            buy = i[1][:5]
             sale = i[2][:5]
             msg += '\n%s      %s  %s' % (base_ccy, buy, sale)
         msg += '</pre>'

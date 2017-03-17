@@ -64,14 +64,14 @@ def cmd_calc(raw_in, text):
 	send_msg(raw_in, text)
 
 def cmd_dpi_calc(raw_in, text):
-	text = text.strip().replace(',','.')
+	text = text.strip().replace(',', '.')
 	if text:
-		tupl = re.findall('([0-9.]+)',text)[:3]
+		tupl = re.findall('([0-9.]+)', text)[:3]
 		if len(tupl) == 3:
 			if '.' in tupl[0] or '.' in tupl[1]: msg = 'Width and height must be integer!'
 			elif not float(tupl[2]): msg = 'Incorrect diagonal value!'
 			else:
-				dpi_type = [0,'L'],[160,'M'],[240,'H'],[320,'XH']
+				dpi_type = [0, 'L'], [160, 'M'], [240, 'H'], [320, 'XH']
 				dpi = int((math.sqrt(int(tupl[0])**2+int(tupl[1])**2))/float(tupl[2]))
 				dpi_name = 'unknown'
 				for t in dpi_type:
@@ -91,11 +91,11 @@ def sysshell(raw_in, text, mode):
 	msg = shell_execute(text)
 	if mode:
 		send_msg(raw_in, msg)
-   
+
 commands = [['dpi', cmd_dpi_calc, False, 'less', 'DPI calculator. Width height size.'],
 			['calc', cmd_calc, False, 'less', 'Calculator.'],
 			['exec', cmd_execute, True, 'less', 'Execute external code.'],
 			['sh', cmd_shell, True, 'all', 'Execute shell command.'],
-			['sh_silent', cms_shell_silent, True, 'all', 'Silent execute shell command.']]
+			['shsilent', cms_shell_silent, True, 'all', 'Silent execute shell command.']]
 
 # The end is near!

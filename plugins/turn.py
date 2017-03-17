@@ -25,8 +25,8 @@ def turner_raw(to_turn):
 	rtab = u'`1234567890-=qwertyuiop[]\\asdfghjkl;\'zxcvbnm,./~!@#$%^&*()_+QWERTYUIOP{}|ASDFGHJKL:"ZXCVBNM<>?ё1234567890-=йцукенгшщзхъ\фывапролджэячсмитьбю.Ё!"№;%:?*()_+ЙЦУКЕНГШЩЗХЪ/ФЫВАПРОЛДЖЭЯЧСМИТЬБЮ,'
 	ltab = u'ё1234567890-=йцукенгшщзхъ\\фывапролджэячсмитьбю.Ё!"№;%:?*()_+ЙЦУКЕНГШЩЗХЪ/ФЫВАПРОЛДЖЭЯЧСМИТЬБЮ,`1234567890-=qwertyuiop[]\asdfghjkl;\'zxcvbnm,./~!@#$%^&*()_+QWERTYUIOP{}|ASDFGHJKL:"ZXCVBNM<>?'
 	msg = '🔄 '
-	for tt in re.findall('\s+[^\s]*', ' ' + to_turn,re.I+re.U):
-		if re.findall('\s+(((svn|http[s]?|ftp)(://))|(magnet:\?))',tt,re.S|re.I|re.U):
+	for tt in re.findall('\s+[^\s]*', ' ' + to_turn, re.I+re.U):
+		if re.findall('\s+(((svn|http[s]?|ftp)(://))|(magnet:\?))', tt, re.S|re.I|re.U):
 			msg += tt
 		else:
 			msg += ''.join([ltab[rtab.find(x)] if x in rtab else x for x in tt])

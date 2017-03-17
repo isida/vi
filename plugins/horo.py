@@ -32,28 +32,32 @@ horo_dates = ['21.03-19.04', '20.04-20.05', '21.05-20.06', \
 			  '23.09-22.10', '23.10-21.11', '22.11-21.12', \
 			  '22.12-19.01', '20.01-18.02', '19.02-20.03']
 
+horo_help = 'Horoscope.\n/horo_list - Show horoscope list\n/horo_date - Show dates'
+
 def cmd_horoscope(raw_in, text):
 	param = text.strip().lower()
 	msg = 'What?'
 	if param:
 		if param == 'list':
-			msg = '\n'.join(['%s %s' % \
-                (horoemo[i], t.capitalize()) for i,t in enumerate(horodb)])
-		if param == 'date':
+			msg = '\n'.join(['%s /horo_%s' % \
+                (horoemo[i], t.capitalize()) for i, t in enumerate(horodb)])
+		elif param == 'date':
 			msg = 'List of dates:\n%s' % '\n'.join(['%s … %s %s' % \
-                (horo_dates[i], horoemo[i], t.capitalize()) for i,t in enumerate(horodb)])
-		if param in horodb:
+                (horo_dates[i], horoemo[i], t.capitalize()) for i, t in enumerate(horodb)])
+		elif param in horodb:
 			body = html_encode(load_page('http://horo.mail.ru/prediction/%s/today' % param))
 			try:
 				msg = '%s %s (%s)\n%s' % (horoemo[horodb.index(param)], \
 					param.capitalize(), \
 					horo_dates[horodb.index(param)], \
-					unhtml_hard(re.findall('<div class="article__item.*?>(.+?)</div>',body,re.S|re.I|re.U)[0].strip()))
+					unhtml_hard(re.findall('<div class="article__item.*?>(.+?)</div>', body, re.S|re.I|re.U)[0].strip()))
 			except:
 				raise
 				msg = 'Unknown error!'
+	else:
+		msg = horo_help
 	send_msg(raw_in, msg)
 
-commands = [['horo', cmd_horoscope, False, 'all', 'Horoscope. List|Date.']]
+commands = [['horo', cmd_horoscope, False, 'all', horo_help]]
 
 # The end is near!

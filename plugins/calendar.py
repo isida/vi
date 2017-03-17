@@ -35,10 +35,10 @@ def cmd_calendar(raw_in, text):
 
 	msg = '📅 %s' % (timeadd(tuple(time.localtime())))
 	msg += '\n<pre>Mo Tu We Th Fr Sa Su\n'
-	msg += '\n'.join([' '.join([['%2d' % r,'  '][r==0] for r in t]) for t in calendar.monthcalendar(year,month)])
+	msg += '\n'.join([' '.join([['%2d' % r, '  '][r==0] for r in t]) for t in calendar.monthcalendar(year, month)])
 	msg += '</pre>'
 
-	send_msg(raw_in,msg)
+	send_msg(raw_in, msg)
 
 commands = [['calendar', cmd_calendar, False, 'all', 'Calendar [month][year]']]
 

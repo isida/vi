@@ -77,12 +77,12 @@ class KThread(threading.Thread):
 		self.killed = True
 
 # Execute new thread
-def thr(func,param,name):
+def thr(func, param, name):
 	global THREAD_COUNT, THREAD_ERROR_COUNT, sema
 	THREAD_COUNT += 1
 	try:
-		tmp_th = KThread(group=None,target=log_execute,name='%s_%s' % \
-						(THREAD_COUNT,name),args=(func,param))
+		tmp_th = KThread(group=None, target=log_execute, name='%s_%s' % \
+						(THREAD_COUNT, name), args=(func, param))
 		tmp_th.start()
 	except SystemExit:
 		pass
@@ -117,28 +117,28 @@ def log_execute(proc, params):
 def deidna(text):
 	def repl(t):
 		return t.group().lower().decode('idna')
-	return re.sub(r'(xn--[-0-9a-z_]*)',repl,text,flags=re.S|re.I|re.U)
+	return re.sub(r'(xn--[-0-9a-z_]*)', repl, text, flags=re.S|re.I|re.U)
 
 # Encode to IDNA
 def enidna(text):
-	idn = re.findall(u'http[s]?://([-0-9a-zа-я._]*)',text,flags=re.S|re.I|re.U)
+	idn = re.findall(u'http[s]?://([-0-9a-zа-я._]*)', text, flags=re.S|re.I|re.U)
 	if idn:
-		text = text.replace(idn[0],idn[0].lower().encode('idna'))
+		text = text.replace(idn[0], idn[0].lower().encode('idna'))
 	return text.encode('utf-8')
 
 # RAW-Encode to IDNA
 def enidna_raw(text):
 	def repl(t):
 		return t.group().lower().encode('idna')
-	return re.sub(u'([а-я][-0-9а-я_]*)',repl,text,flags=re.S|re.I|re.U)
+	return re.sub(u'([а-я][-0-9а-я_]*)', repl, text, flags=re.S|re.I|re.U)
 
 # Detect HTML encoding and encode it
 def html_encode(body):
-	encidx = re.findall('encoding=["\'&]*(.*?)["\'& ]{1}',body[:1024])
+	encidx = re.findall('encoding=["\'&]*(.*?)["\'& ]{1}', body[:1024])
 	if encidx:
 		enc = encidx[0]
 	else:
-		encidx = re.findall('charset=["\'&]*(.*?)["\'& ]{1}',body[:1024])
+		encidx = re.findall('charset=["\'&]*(.*?)["\'& ]{1}', body[:1024])
 		if encidx: enc = encidx[0]
 		else: enc = chardet.detect(body)['encoding']
 	if body == None:
@@ -146,17 +146,17 @@ def html_encode(body):
 	if enc == None or enc == '' or enc.lower() == 'unicode':
 		enc = 'utf-8'
 	if enc == 'ISO-8859-2':
-		tx,splitter = '','|'
+		tx, splitter = '', '|'
 		while splitter in body:
 			splitter += '|'
-		tbody = body.replace('</','<'+splitter+'/').split(splitter)
+		tbody = body.replace('</', '<'+splitter+'/').split(splitter)
 		cntr = 0
 		for tmp in tbody:
 			try:
 				enc = chardet.detect(tmp)['encoding']
 				if enc == None or enc == '' or enc.lower() == 'unicode':
 					enc = 'utf-8'
-				tx += unicode(tmp,enc)
+				tx += unicode(tmp, enc)
 			except:
 				ttext = ''
 				for tmp2 in tmp:
@@ -169,27 +169,27 @@ def html_encode(body):
 		return tx
 	else:
 		try:
-			return smart_encode(body,enc)
+			return smart_encode(body, enc)
 		except:
 			return 'Encoding error!'
 
 # Encode HTML with mixed encoding
-def smart_encode(text,enc):
+def smart_encode(text, enc):
 	tx = ''
 	splitter = '|'
 	while splitter in text:
 		splitter += '|'
-	ttext = text.replace('</','<%s/' % splitter).split(splitter)
+	ttext = text.replace('</', '<%s/' % splitter).split(splitter)
 	for tmp in ttext:
 		try:
-			tx += unicode(tmp,enc)
+			tx += unicode(tmp, enc)
 		except:
 			pass
 	return tx
 
 # Soft escape html
 def html_escape_soft(text):
-	for tmp in (('<','&lt;'),('>','&gt;')):
+	for tmp in (('<', '&lt;'), ('>', '&gt;')):
 		text = text.replace(tmp[0], tmp[1])
 	return text
 
@@ -207,7 +207,7 @@ def writefile(filename, data):
 	fp.close()
 
 # Get file or get default data
-def getFile(filename,default):
+def getFile(filename, default):
 	if os.path.isfile(filename):
 		try:
 			filebody = eval(readfile(filename))
@@ -222,30 +222,30 @@ def getFile(filename,default):
 						pass
 			else:
 				filebody = default
-				writefile(filename,str(default))
+				writefile(filename, str(default))
 	else:
 		filebody = default
-		writefile(filename,str(default))
-	writefile(back_file % filename.split('/')[-1],str(filebody))
+		writefile(filename, str(default))
+	writefile(back_file % filename.split('/')[-1], str(filebody))
 	return filebody
 
 def replace_ltgt(text):
-	return remove_replace_ltgt(text,' ')
+	return remove_replace_ltgt(text, ' ')
 
-def remove_replace_ltgt(text,item):
+def remove_replace_ltgt(text, item):
 	T = re.findall('<.*?>', text, re.S)
 	for tmp in T:
-		text = text.replace(tmp,item,1)
+		text = text.replace(tmp, item, 1)
 	return text
 
 def rss_replace(ms):
 	for tmp in lmass:
-		ms = ms.replace(tmp[1],tmp[0])
+		ms = ms.replace(tmp[1], tmp[0])
 	return unescape(esc_min(ms))
 
 def esc_min(ms):
 	for tmp in rmass:
-		ms = ms.replace(tmp[1],tmp[0])
+		ms = ms.replace(tmp[1], tmp[0])
 	return ms
 
 def unescape(text):
@@ -268,14 +268,14 @@ def unescape(text):
 	return re.sub('&#?\w+;', fixup, text)
 
 # Hard remove HTML tags
-def unhtml_raw(page,mode):
-	for a in range(0,page.count('<style')):
-		ttag = get_tag_full(page,'style')
-		page = page.replace(ttag,'')
+def unhtml_raw(page, mode):
+	for a in range(0, page.count('<style')):
+		ttag = get_tag_full(page, 'style')
+		page = page.replace(ttag, '')
 
-	for a in range(0,page.count('<script')):
-		ttag = get_tag_full(page,'script')
-		page = page.replace(ttag,'')
+	for a in range(0, page.count('<script')):
+		ttag = get_tag_full(page, 'script')
+		page = page.replace(ttag, '')
 
 	page = rss_replace(page)
 	if mode:
@@ -284,37 +284,37 @@ def unhtml_raw(page,mode):
 		page = rss_repl_html(page)
 	page = rss_replace(page)
 	page = rss_del_nn(page)
-	page = page.replace('\n ','')
+	page = page.replace('\n ', '')
 	return page
 
 def rss_del_nn(ms):
-	ms = ms.replace('\r',' ').replace('\t',' ')
+	ms = ms.replace('\r', ' ').replace('\t', ' ')
 	while '\n ' in ms:
-		ms = ms.replace('\n ','\n')
+		ms = ms.replace('\n ', '\n')
 	while len(ms) and (ms[0] == '\n' or ms[0] == ' '):
 		ms = ms[1:]
 	while '\n\n' in ms:
-		ms = ms.replace('\n\n','\n')
+		ms = ms.replace('\n\n', '\n')
 	while '  ' in ms:
-		ms = ms.replace('  ',' ')
+		ms = ms.replace('  ', ' ')
 	while u'\n\n•' in ms:
-		ms = ms.replace(u'\n\n•',u'\n•')
+		ms = ms.replace(u'\n\n•', u'\n•')
 	while u'• \n' in ms:
-		ms = ms.replace(u'• \n',u'• ')
+		ms = ms.replace(u'• \n', u'• ')
 	return ms.strip()
 
 def unhtml(page):
-	return unhtml_raw(page,None)
+	return unhtml_raw(page, None)
 
 def unhtml_hard(page):
-	return unhtml_raw(page,True)
+	return unhtml_raw(page, True)
 
 # Get Bot's version
 def get_bot_version():
 	if os.path.isfile(ver_file):
-		bvers = readfile(ver_file).decode('utf-8').replace('\n','').\
-					replace('\r','').replace('\t','').replace(' ','')
-		bV = '%s.%s-%s' % (botVersionDef,bvers,base_type)
+		bvers = readfile(ver_file).decode('utf-8').replace('\n', '').\
+					replace('\r', '').replace('\t', '').replace(' ', '')
+		bV = '%s.%s-%s' % (botVersionDef, bvers, base_type)
 	else:
 		bV = '%s-%s' % (botVersionDef, base_type)
 	return bV
@@ -323,10 +323,10 @@ def get_bot_version():
 def get_os_version():
 	iSys = sys.platform
 	iOs = os.name
-	isidaPyVer = '%s [%s]' % (sys.version.split(' (')[0],sys.version.split(')')[0].split(', ')[1])
+	isidaPyVer = '%s [%s]' % (sys.version.split(' (')[0], sys.version.split(')')[0].split(', ')[1])
 	if iOs == 'posix':
 		osInfo = os.uname()
-		isidaOs = '%s %s-%s / Python %s' % (osInfo[0],osInfo[2],osInfo[4],isidaPyVer)
+		isidaOs = '%s %s-%s / Python %s' % (osInfo[0], osInfo[2], osInfo[4], isidaPyVer)
 	elif iSys == 'win32':
 		def get_registry_value(key, subkey, value):
 			import _winreg
@@ -335,14 +335,14 @@ def get_os_version():
 			(value, type) = _winreg.QueryValueEx(handle, value)
 			return value
 		def get(key):
-			return get_registry_value("HKEY_LOCAL_MACHINE", "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",key)
+			return get_registry_value("HKEY_LOCAL_MACHINE", "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", key)
 		osInfo = ' '.join(get("ProductName").split()[:3])
 		buildInfo = get("CurrentBuildNumber")
 		try:
 			spInfo = get("CSDVersion")
-			isidaOs = '%s %s [%s] / Python %s' % (osInfo,spInfo,buildInfo,isidaPyVer)
+			isidaOs = '%s %s [%s] / Python %s' % (osInfo, spInfo, buildInfo, isidaPyVer)
 		except:
-			isidaOs = '%s [%s] / Python %s' % (osInfo,buildInfo,isidaPyVer)
+			isidaOs = '%s [%s] / Python %s' % (osInfo, buildInfo, isidaPyVer)
 	else:
 		isidaOs = 'unknown'
 	return isidaOs
@@ -350,19 +350,19 @@ def get_os_version():
 # Get color by name on Linux
 def get_color(c):
 	color = os.environ.has_key('TERM')
-	colors = {'clear':'[0m','blue':'[34m','red':'[31m','magenta':'[35m',
-			  'green':'[32m','cyan':'[36m','brown':'[33m','light_gray':'[37m',
-			  'black':'[30m','bright_blue':'[34;1m','bright_red':'[31;1m',
-			  'purple':'[35;1m','bright_green':'[32;1m','bright_cyan':'[36;1m',
-			  'yellow':'[33;1m','dark_gray':'[30;1m','white':'[37;1m'}
-	return ['','\x1b%s' % colors[c]][color]
+	colors = {'clear':'[0m', 'blue':'[34m', 'red':'[31m', 'magenta':'[35m',
+			  'green':'[32m', 'cyan':'[36m', 'brown':'[33m', 'light_gray':'[37m',
+			  'black':'[30m', 'bright_blue':'[34;1m', 'bright_red':'[31;1m',
+			  'purple':'[35;1m', 'bright_green':'[32;1m', 'bright_cyan':'[36;1m',
+			  'yellow':'[33;1m', 'dark_gray':'[30;1m', 'white':'[37;1m'}
+	return ['', '\x1b%s' % colors[c]][color]
 
 # Get color by name on Windows
 def get_color_win32(c):
-	colors = {'clear':7,'blue':1,'red':4,'magenta':5,'green':2,'cyan':3,
-			  'brown':6,'light_gray':7,'black':0,'bright_blue':9,
-			  'bright_red':12,'purple':13,'bright_green':10,'bright_cyan':11,
-			  'yellow':14,'dark_gray':8,'white':15}
+	colors = {'clear':7, 'blue':1, 'red':4, 'magenta':5, 'green':2, 'cyan':3,
+			  'brown':6, 'light_gray':7, 'black':0, 'bright_blue':9,
+			  'bright_red':12, 'purple':13, 'bright_green':10, 'bright_cyan':11,
+			  'yellow':14, 'dark_gray':8, 'white':15}
 	return colors[c]
 
 # Time and date to string
@@ -376,7 +376,7 @@ def onlytimeadd(lt):
 # Exclude non-ascii symbols
 def parser(t):
 	try:
-		return ''.join([['?',l][l<='~'] for l in unicode(t)])
+		return ''.join([['?', l][l<='~'] for l in unicode(t)])
 	except:
 		fp = file(slog_folder % 'critical_exception_%s.txt' % int(time.time()), 'wb')
 		fp.write(t)
@@ -385,30 +385,30 @@ def parser(t):
 # Log message
 def pprint(*text):
 	global last_logs_store
-	c,wc,win_color = '','',''
+	c, wc, win_color = '', '', ''
 	if len(text) > 1:
 		if is_win32:
 			win_color = get_color_win32(text[1])
 		else:
-			c,wc = get_color(text[1]),get_color('clear')
+			c, wc = get_color(text[1]), get_color('clear')
 	elif is_win32:
 		win_color = get_color_win32('clear')
 	text = text[0]
 	lt = tuple(time.localtime())
-	zz = '%s[%s]%s %s%s' % (wc,onlytimeadd(lt),c,text,wc)
-	last_logs_store = ['[%s] %s' % (onlytimeadd(lt),text)] + \
+	zz = '%s[%s]%s %s%s' % (wc, onlytimeadd(lt), c, text, wc)
+	last_logs_store = ['[%s] %s' % (onlytimeadd(lt), text)] + \
 						last_logs_store[:last_logs_size]
 	if DEBUG_CONSOLE:
 		if is_win32 and win_color:
 			ctypes.windll.Kernel32.SetConsoleTextAttribute(win_console_color, \
 				get_color_win32('clear'))
-			print zz.split(' ',1)[0],
+			print zz.split(' ', 1)[0],
 			ctypes.windll.Kernel32.SetConsoleTextAttribute(win_console_color, \
 				win_color)
 			try:
-				print zz.split(' ',1)[1]
+				print zz.split(' ', 1)[1]
 			except:
-				print parser(zz.split(' ',1)[1])
+				print parser(zz.split(' ', 1)[1])
 			ctypes.windll.Kernel32.SetConsoleTextAttribute(win_console_color, \
 				get_color_win32('clear'))
 		else:
@@ -418,7 +418,7 @@ def pprint(*text):
 				print parser(zz)
 	if DEBUG_LOG:
 		fname = SYSLOG_FOLDER % '%02d%02d%02d.txt' % lt[0:3]
-		fbody = '%s|%s\n' % (onlytimeadd(lt),text.replace('\n','\r'))
+		fbody = '%s|%s\n' % (onlytimeadd(lt), text.replace('\n', '\r'))
 		fl = open(fname, 'a')
 		fl.write(fbody.encode('utf-8'))
 		fl.close()
@@ -451,7 +451,7 @@ def get_config_bin(_config, _section, _name):
 
 # Replace non-ascii and TAB, CR, LF
 def remove_sub_space(t):
-	return ''.join([['?',l][l>=' ' or l in '\t\r\n'] for l in unicode(t)])
+	return ''.join([['?', l][l>=' ' or l in '\t\r\n'] for l in unicode(t)])
 
 # Send request
 def send_raw(raw_in, method, dt, fl={}):
@@ -471,7 +471,7 @@ def send_raw(raw_in, method, dt, fl={}):
 def send_msg(raw_in, msg, parse_mode = 'HTML', custom={}):
 	#if parse_mode == 'HTML':
 	#	msg = html_escape_soft(msg)
-	MSG = { 'chat_id': raw_in['message']['chat'].get('id',''),
+	MSG = { 'chat_id': raw_in['message']['chat'].get('id', ''),
 			'text': msg,
 			'parse_mode': parse_mode }
 	MSG.update(custom)
@@ -479,18 +479,18 @@ def send_msg(raw_in, msg, parse_mode = 'HTML', custom={}):
 
 # Send photo
 def send_photo(raw_in, photo, custom={}):
-	MSG = { 'chat_id': raw_in['message']['chat'].get('id','') }
+	MSG = { 'chat_id': raw_in['message']['chat'].get('id', '') }
 	FLS = {'photo': (photo, open(photo, "rb"))}
 	MSG.update(custom)
-	return send_raw(raw_in, 'sendPhoto', MSG, FLS)  
+	return send_raw(raw_in, 'sendPhoto', MSG, FLS)
 
 # Send document
 def send_document(raw_in, document, custom={}):
-	MSG = { 'chat_id': raw_in['message']['chat'].get('id','') }
+	MSG = { 'chat_id': raw_in['message']['chat'].get('id', '') }
 	FLS = {'document': (document, open(document, "rb"))}
 	MSG.update(custom)
-	return send_raw(raw_in, 'sendDocument', MSG, FLS) 
-    
+	return send_raw(raw_in, 'sendDocument', MSG, FLS)
+
 # Open web page
 def get_opener(page_name, parameters=None):
 	socket.setdefaulttimeout(www_get_timeout)
@@ -512,7 +512,7 @@ def get_opener(page_name, parameters=None):
 			MSG = str(MSG)
 		except:
 			MSG = unicode(MSG)
-		data = 'Error! %s' % MSG.replace('>','').replace('<','').capitalize()
+		data = 'Error! %s' % MSG.replace('>', '').replace('<', '').capitalize()
 		result = False
 	return data, result
 
@@ -567,25 +567,25 @@ def check_updates():
 		if 'message' not in msg_in or 'text' not in msg_in['message']:
 			if msg_in['message'].has_key('new_chat_participant'):
 				pprint('New participant|%s' % '|'.join([str(t) for t in [\
-					msg_in['message']['chat'].get('all_members_are_administrators',''), \
-					msg_in['message']['chat'].get('type',''), \
-					msg_in['message']['chat'].get('id',''), \
-					msg_in['message']['chat'].get('title',''), \
-					msg_in['message']['new_chat_participant'].get('id',''), \
-					msg_in['message']['new_chat_participant'].get('username',''), \
-					msg_in['message']['new_chat_participant'].get('first_name',''), \
-					msg_in['message']['new_chat_participant'].get('last_name','') ]]),'cyan')
+					msg_in['message']['chat'].get('all_members_are_administrators', ''), \
+					msg_in['message']['chat'].get('type', ''), \
+					msg_in['message']['chat'].get('id', ''), \
+					msg_in['message']['chat'].get('title', ''), \
+					msg_in['message']['new_chat_participant'].get('id', ''), \
+					msg_in['message']['new_chat_participant'].get('username', ''), \
+					msg_in['message']['new_chat_participant'].get('first_name', ''), \
+					msg_in['message']['new_chat_participant'].get('last_name', '') ]]), 'cyan')
 				break
 			elif msg_in['message'].has_key('left_chat_participant'):
 				pprint('Left participant|%s' % '|'.join([str(t) for t in [\
-					msg_in['message']['chat'].get('all_members_are_administrators',''), \
-					msg_in['message']['chat'].get('type',''), \
-					msg_in['message']['chat'].get('id',''), \
-					msg_in['message']['chat'].get('title',''), \
-					msg_in['message']['left_chat_participant'].get('id',''), \
-					msg_in['message']['left_chat_participant'].get('username',''), \
-					msg_in['message']['left_chat_participant'].get('first_name',''), \
-					msg_in['message']['left_chat_participant'].get('last_name','') ]]),'cyan')
+					msg_in['message']['chat'].get('all_members_are_administrators', ''), \
+					msg_in['message']['chat'].get('type', ''), \
+					msg_in['message']['chat'].get('id', ''), \
+					msg_in['message']['chat'].get('title', ''), \
+					msg_in['message']['left_chat_participant'].get('id', ''), \
+					msg_in['message']['left_chat_participant'].get('username', ''), \
+					msg_in['message']['left_chat_participant'].get('first_name', ''), \
+					msg_in['message']['left_chat_participant'].get('last_name', '') ]]), 'cyan')
 				break
 			else:
 				pprint('Unknown message', 'red')
@@ -593,14 +593,14 @@ def check_updates():
 				continue
 
 		IS_OWNER = msg_in['message']['from'].get('id', '') == OWNER_ID
-		CMD = msg_in['message'].get('text','').strip()
-		_ID = msg_in['message']['from'].get('id','')
-		_USERNAME = msg_in['message']['from'].get('username','')
-		_FIRST_NAME = msg_in['message']['from'].get('first_name','')
-		_LAST_NAME = msg_in['message']['from'].get('last_name','')
+		CMD = msg_in['message'].get('text', '').strip().replace('_', ' ')
+		_ID = msg_in['message']['from'].get('id', '')
+		_USERNAME = msg_in['message']['from'].get('username', '')
+		_FIRST_NAME = msg_in['message']['from'].get('first_name', '')
+		_LAST_NAME = msg_in['message']['from'].get('last_name', '')
 
 		pprint('|'.join([str(t) for t in [_ID, _USERNAME, _FIRST_NAME, \
-			_LAST_NAME, CMD]]),'cyan')
+			_LAST_NAME, CMD]]), 'cyan')
 		# name, proc, is_owner, data_type
 		#commands = ['whoami', cmd_whoami, False, 'raw']
 		# Command parser!
@@ -620,17 +620,17 @@ def check_updates():
 				CMD.lower().startswith('@%s %s' % (BOT_NAME, c[0])):
 				if ALLOW:
 					if c[3] == 'raw':
-						thr(c[1], (msg_in,), CMD)
+						thr(c[1], (msg_in, ), CMD)
 					elif c[3] in ['less', 'all']:
 						less = CMD[len(c[0]):].strip()
 						if less.lower().startswith('@%s' % BOT_NAME):
 							less = less[len(BOT_NAME)+1:].strip()
 						if c[3] == 'less' and not less:
-							send_msg(msg_in,'⚠️ Required parametr missed!')
+							send_msg(msg_in, '⚠️ Required parametr missed!')
 						else:
 							thr(c[1], (msg_in, less), CMD)
 				else:
-					send_msg(msg_in,'🔒 Locked! Command allowed only for bot\'s owner.')
+					send_msg(msg_in, '🔒 Locked! Command allowed only for bot\'s owner.')
 				IS_COMMAND = True
 				break
 
@@ -638,33 +638,35 @@ def check_updates():
 			if (msg_in['message']['text'].lower().startswith('@%s ' % BOT_NAME) and \
 					msg_in['message'].has_key('chat') and \
 					msg_in['message']['chat'].has_key('type') and \
-					msg_in['message']['chat'].get('type','') in ['group', 'supergroup']) or \
+					msg_in['message']['chat'].get('type', '') in ['group', 'supergroup']) or \
 					(msg_in['message'].has_key('reply_to_message') and \
 					msg_in['message']['reply_to_message'].has_key('from') and \
 					msg_in['message']['reply_to_message']['from'].has_key('username') and \
-					msg_in['message']['reply_to_message']['from'].get('username','').lower() == BOT_NAME):
+					msg_in['message']['reply_to_message']['from'].get('username', '').lower() == BOT_NAME):
 				text = msg_in['message']['text']
 				if text.lower().startswith('@%s ' % BOT_NAME):
 					text = text[len(BOT_NAME)+1:].strip()
 				pprint('>>> Chat: %s' % text, 'green')
 				msg = getAnswer(msg_in, text)
 				pprint('<<< Chat: %s' % msg, 'bright_green')
+				#time.sleep(len(msg) / 3.0 + random.randint(0, 3))
 				send_msg(msg_in, msg)
 			elif (msg_in['message'].has_key('chat') and \
 					msg_in['message']['chat'].has_key('type') and \
-					msg_in['message']['chat'].get('type','') == 'private'):
+					msg_in['message']['chat'].get('type', '') == 'private'):
 				text = msg_in['message'].get('text').strip()
 				pprint('>>> Chat: %s' % text, 'green')
 				msg = getAnswer(msg_in, text)
 				pprint('<<< Chat: %s' % msg, 'bright_green')
+				#time.sleep(len(msg) / 3.0 + random.randint(0, 3))
 				send_msg(msg_in, msg)
 			else:
 				pass
 				#pprint('Unknown message', 'red')
 				#pprint(json.dumps(msg_in, indent=2, separators=(',', ': ')), 'magenta')
 
-def get_tag(body,tag):
-	T = re.findall('<%s.*?>(.*?)</%s>' % (tag,tag),body,re.S)
+def get_tag(body, tag):
+	T = re.findall('<%s.*?>(.*?)</%s>' % (tag, tag), body, re.S)
 	if T:
 		return T[0]
 	else:
@@ -676,7 +678,7 @@ def shell_execute(cmd):
 	else:
 		tmp_file = '%s.tmp' % int(time.time())
 		try:
-			error_answ = os.system('%s > %s 2>&1' % (cmd.encode('utf-8'),tmp_file))
+			error_answ = os.system('%s > %s 2>&1' % (cmd.encode('utf-8'), tmp_file))
 			if not error_answ:
 				try:
 					body = html_escape_soft(readfile(tmp_file))
@@ -684,7 +686,7 @@ def shell_execute(cmd):
 					body = '⚠️ Command execution error.'
 				if len(body):
 					enc = chardet.detect(body)['encoding']
-					result = remove_sub_space(unicode(body,enc))
+					result = remove_sub_space(unicode(body, enc))
 				else:
 					result = 'ok'
 			else:
@@ -789,7 +791,7 @@ botVersionDef      = '6.0'                            # Bot's version
 base_type          = 'NoDB'                           # Bot's base type
 www_get_timeout    = 15                               # Timeout for web requests
 size_overflow      = 262144                           # Web page limit in bytes
-#http_proxy         = {'host':'127.0.0.1','port':3128,'user':None,'password':None}
+#http_proxy         = {'host':'127.0.0.1', 'port':3128, 'user':None, 'password':None}
 #                                                     # Proxy settings
 user_agent         = 'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'
 #                                                     # User agent for web requests
@@ -810,7 +812,7 @@ try:
 	_ = OFFSET
 except NameError:
 	OFFSET = 0
-logging.basicConfig(filename=LOG_FILENAME)#,level=logging.DEBUG,)
+logging.basicConfig(filename=LOG_FILENAME)#, level=logging.DEBUG, )
 sema = threading.BoundedSemaphore(value=30)
 is_win32 = sys.platform == 'win32'
 if is_win32:
@@ -818,9 +820,9 @@ if is_win32:
 	ctypes.windll.Kernel32.GetStdHandle.restype = ctypes.c_ulong
 	win_console_color = ctypes.windll.Kernel32.GetStdHandle(ctypes.c_ulong(0xfffffff5))
 
-pprint('-'*50,'blue')
+pprint('-'*50, 'blue')
 pprint('%s %s // %s' % (botName, get_bot_version(), get_os_version()), 'bright_cyan')
-pprint('-'*50,'blue')
+pprint('-'*50, 'blue')
 pprint('*** Init enviroment succed', 'white')
 
 # --- Config ----------------------------------------------------------------- #
@@ -837,8 +839,8 @@ if CONFIG_DEBUG not in SECTIONS:
 if CONFIG_OWNER not in SECTIONS:
 	Error('Owner options not found in %s' % CONFIG_FILE)
 
-CONFIG_API_TOKEN  = CONFIG.get(CONFIG_MAIN,'token')
-BOT_NAME          = CONFIG.get(CONFIG_MAIN,'bot_name').lower()
+CONFIG_API_TOKEN  = CONFIG.get(CONFIG_MAIN, 'token')
+BOT_NAME          = CONFIG.get(CONFIG_MAIN, 'bot_name').lower()
 PARANOIA_MODE     = get_config_bin(CONFIG, CONFIG_MAIN, 'paranoia_mode')
 DEBUG_LOG         = get_config_bin(CONFIG, CONFIG_DEBUG, 'logging')
 DEBUG_CONSOLE     = get_config_bin(CONFIG, CONFIG_DEBUG, 'console')
@@ -864,9 +866,9 @@ for plugin in plug_list:
 	if commands:
 		for tmp in commands:
 			COMMANDS.append(tmp)
-pprint('*** Total plugins: %s' % len(plug_list),'green')
-pprint('-'*50,'blue')
-pprint('Let\'s begin!','white')
+pprint('*** Total plugins: %s' % len(plug_list), 'green')
+pprint('-'*50, 'blue')
+pprint('Let\'s begin!', 'white')
 
 # --- Main cycle ------------------------------------------------------------- #
 while not GAME_OVER:
@@ -879,7 +881,7 @@ while not GAME_OVER:
 		CYCLES += 1
 		time.sleep(TIMEOUT)
 	except KeyboardInterrupt:
-		pprint('Shutdown by CTRL+C...','bright_red')
+		pprint('Shutdown by CTRL+C...', 'bright_red')
 		time.sleep(1)
 		sys.exit('exit')
 	except Exception, MSG:
