@@ -629,6 +629,8 @@ def check_updates():
 						less = CMD[len(c[0]):].strip()
 						if less.lower().startswith('@%s' % BOT_NAME):
 							less = less[len(BOT_NAME)+1:].strip()
+						elif less.lower().endswith('@%s' % BOT_NAME):
+							less = less[:-(len(BOT_NAME)+1)].strip()
 						if c[3] == 'less' and not less:
 							send_msg(msg_in, '⚠️ Required parametr missed!')
 						else:
