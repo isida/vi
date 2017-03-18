@@ -24,18 +24,20 @@
 def cmd_oboobs(raw_in):
 	try:
 		data = json.loads(load_page('http://api.oboobs.ru/noise/1/'))[0]
-		msg = '<a href="http://media.oboobs.ru/%s">#%s</a> Another one - /oboobs' % (data['preview'], data['id'])
+		photo_url = "http://media.oboobs.ru/%s" % data['preview']
+		send_photo(raw_in, photo_url, {'caption': 'Another one - /oboobs'})
 	except:
 		msg = 'Error!'
-	send_msg(raw_in, msg)
+		send_msg(raw_in, msg)
 
 def cmd_obutts(raw_in):
 	try:
 		data = json.loads(load_page('http://api.obutts.ru/noise/1/'))[0]
-		msg = '<a href="http://media.obutts.ru/%s">#%s</a> Another one - /obutts' % (data['preview'], data['id'])
+		photo_url = "http://media.obutts.ru/%s" % data['preview']
+		send_photo(raw_in, photo_url, {'caption': 'Another one - /obutts'})
 	except:
 		msg = 'Error!'
-	send_msg(raw_in, msg)
+		send_msg(raw_in, msg)
 
 commands = [['oboobs', cmd_oboobs, False, 'raw', 'Show random picture from oboobs.ru'],
 			['obutts', cmd_obutts, False, 'raw', 'Show random picture from obutts.ru']]

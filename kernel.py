@@ -479,15 +479,25 @@ def send_msg(raw_in, msg, parse_mode = 'HTML', custom={}):
 
 # Send photo
 def send_photo(raw_in, photo, custom={}):
-	MSG = { 'chat_id': raw_in['message']['chat'].get('id', '') }
-	FLS = {'photo': (photo, open(photo, "rb"))}
+	if re.match('https?://.*\.(jpe?g|png|gif)$', photo.lower()):
+		MSG = { 'chat_id': raw_in['message']['chat'].get('id', ''),
+		'photo': photo  }
+		FLS = {}
+	else:
+		MSG = { 'chat_id': raw_in['message']['chat'].get('id', '') }
+		FLS = {'photo': (photo, open(photo, "rb"))}
 	MSG.update(custom)
 	return send_raw(raw_in, 'sendPhoto', MSG, FLS)
 
 # Send document
 def send_document(raw_in, document, custom={}):
-	MSG = { 'chat_id': raw_in['message']['chat'].get('id', '') }
-	FLS = {'document': (document, open(document, "rb"))}
+	if re.match('https?://.*\.(pdf|zip|gif)$', document.lower()):
+		MSG = { 'chat_id': raw_in['message']['chat'].get('id', ''),
+		'document': document  }
+		FLS = {}
+	else:
+		MSG = { 'chat_id': raw_in['message']['chat'].get('id', '') }
+		FLS = {'document': (document, open(document, "rb"))} 
 	MSG.update(custom)
 	return send_raw(raw_in, 'sendDocument', MSG, FLS)
 
