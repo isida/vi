@@ -34,9 +34,15 @@ def turner_raw(to_turn):
 	return msg
 
 def cmd_turn(raw_in, less):
-	msg = turner_raw(less)
-	send_msg(raw_in,msg)
+	if not less and raw_in['message'].has_key('reply_to_message'):
+		if raw_in['message']['reply_to_message'].has_key('text'):
+			less = raw_in['message']['reply_to_message']['text']
+	if less:
+		msg = turner_raw(less)
+	else:
+		msg = '⚠️ Required parameter missed!'
+	send_msg(raw_in, msg)
 
-commands = [['turn', cmd_turn, False, 'less', 'Turn text from one layout to another.']]
+commands = [['turn', cmd_turn, False, 'all', 'Turn text from one layout to another.']]
 
 # The end is near!

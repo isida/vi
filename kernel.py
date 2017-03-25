@@ -642,7 +642,7 @@ def check_updates():
 						elif less.lower().endswith('@%s' % BOT_NAME):
 							less = less[:-(len(BOT_NAME)+1)].strip()
 						if c[3] == 'less' and not less:
-							send_msg(msg_in, '⚠️ Required parametr missed!')
+							send_msg(msg_in, '⚠️ Required parameter missed!')
 						else:
 							thr(c[1], (msg_in, less), CMD)
 				else:
@@ -842,7 +842,7 @@ pprint('-'*50, 'blue')
 pprint('*** Init enviroment succed', 'white')
 
 # --- Config ----------------------------------------------------------------- #
-pprint('*** Loadnig config', 'white')
+pprint('*** Loading config', 'white')
 if not os.path.exists(CONFIG_FILE):
 	Error('Config file not found: %s' % CONFIG_FILE)
 CONFIG = ConfigParser.ConfigParser()
