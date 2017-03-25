@@ -30,28 +30,37 @@ def cmd_help(raw_in, text):
 	if not text:
 		msg = ['🤖 iSida telegram bot',
 			   '(c) 2oo9-%s Disabler Production Lab.' % str(time.localtime()[0]).replace('0', 'o'),
-			   '🔸 Commands help: /help command | *',
 			   '🔸 Available commands list: /commands',
+			   '🔸 Help list: /help_list',
+			   '🔸 Help all commands: /help_all',
 			   '🔸 Dev-chat @isida_bot_dev',
 			   '🔸 Site: http://isida.dsy.name']
 		msg = '\n'.join(msg)
 		send_msg(raw_in, msg, custom = {'disable_web_page_preview': True})
 	else:
 		rez = []
-		if text == '*':
-			text = ''
-		for cmd in COMMANDS:
-			if (text in cmd[0].lower() or text in cmd[4].lower()) \
-				and (IS_OWNER or not cmd[2]):
-				if IS_OWNER:
-					rez.append((cmd[0], cmd[4], get_su(cmd[2])))
-				else:
-					rez.append((cmd[0], cmd[4], ''))
-		if rez:
-			msg = 'Found commands:\n'
-			msg += '\n'.join('/%s - %s %s' % t for t in rez)
+		if text == 'list':
+			for cmd in COMMANDS:
+				if IS_OWNER or not cmd[2]:
+					if IS_OWNER:
+						rez.append((cmd[0], get_su(cmd[2])))
+					else:
+						rez.append((cmd[0], ''))
+			msg = '\n'.join('/help_%s %s' % t for t in rez)
 		else:
-			msg = 'Not found.'
+			if text == 'all':
+				text = ''
+			for cmd in COMMANDS:
+				if (text in cmd[0].lower() or text in cmd[4].lower()) \
+					and (IS_OWNER or not cmd[2]):
+					if IS_OWNER:
+						rez.append((cmd[0], cmd[4], get_su(cmd[2])))
+					else:
+						rez.append((cmd[0], cmd[4], ''))
+			if rez:
+				msg = '\n'.join('/%s - %s %s' % t for t in rez)
+			else:
+				msg = 'Not found.'
 		send_msg(raw_in, msg)
 
 def cmd_commands(raw_in):
