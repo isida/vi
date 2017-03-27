@@ -25,10 +25,16 @@ def cmd_whoami(raw_in):
 	msg =    '🗃 Username: <b>%s</b>' % raw_in['message']['from'].get('username', '')
 	msg += '\n📰 Name: <b>%s</b>' % raw_in['message']['from'].get('first_name', '')
 	msg += ' <b>%s</b>' % raw_in['message']['from'].get('last_name', '')
+	ID = raw_in['message']['from'].get('id', 0)
 	msg += '\n🗂 ID: <b>%s</b>' % raw_in['message']['from'].get('id', '')
 	IS_OWNER_TXT = ['No', 'Yes'][raw_in['message']['from'].get('id', '') == OWNER_ID]
 	msg += '\n🤖 Bot\'s owner: <b>%s</b>' % IS_OWNER_TXT
-
+	try:
+		CHAT_ID = raw_in['message']['chat'].get('id', 0)
+	except:
+		CHAT_ID = 0
+	if ID != CHAT_ID:
+		msg += '\n🗂 ChatID: <b>%s</b>' % CHAT_ID
 	send_msg(raw_in, msg)
 
 # name, proc, is_owner, data_type

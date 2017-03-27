@@ -568,6 +568,10 @@ def check_updates():
 		if DEBUG_JSON:
 			pprint(json.dumps(msg_in, indent=2, separators=(',', ': ')), 'magenta')
 		OFFSET = msg_in['update_id']
+		try:
+			CHAT_ID = msg_in['message']['chat'].get('id', 0)
+		except:
+			CHAT_ID = 0
 		if msg_in.has_key('edited_message'):
 			msg_in['message'] = msg_in['edited_message']
 			pprint('*** Edited message!', 'yellow')
@@ -623,7 +627,12 @@ def check_updates():
 			if c[2] and IS_OWNER:
 				ALLOW = True
 			elif not c[2]:
-				ALLOW = True
+				if 'white' in c[5].keys() and CHAT_ID not in c[5]['white']:
+					ALLOW = False
+				elif 'black' in c[5].keys() and CHAT_ID in c[5]['black']:
+					ALLOW = False
+				else:
+					ALLOW = True
 			else:
 				ALLOW = False
 			if CMD.startswith('/'):
@@ -646,7 +655,7 @@ def check_updates():
 						else:
 							thr(c[1], (msg_in, less), CMD)
 				else:
-					send_msg(msg_in, '🔒 Locked! Command allowed only for bot\'s owner.')
+					send_msg(msg_in, '🔒 Locked!')
 				IS_COMMAND = True
 				break
 
@@ -881,6 +890,8 @@ for plugin in plug_list:
 	execfile(PLUGIN_FOLDER % plugin)
 	if commands:
 		for tmp in commands:
+			if len(tmp) == 5:
+				tmp.append({})
 			COMMANDS.append(tmp)
 pprint('*** Total plugins: %s' % len(plug_list), 'green')
 pprint('-'*50, 'blue')
