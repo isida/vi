@@ -26,6 +26,6 @@ def cmd_test(raw_in):
 	msg = random.choice(answer)
 	send_msg(raw_in, msg)
 
-commands = [['test', cmd_test, False, 'raw', 'Check bot\'s activity.', {'black': [-1001069052151]}]]
+commands = [['test', cmd_test, False, 'raw', 'Check bot\'s activity.']]
 
 # The end is near!

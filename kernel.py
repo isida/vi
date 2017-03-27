@@ -811,6 +811,7 @@ DEBUG_LOG          = True                             # Logging all bot's action
 CONFIG_MAIN        = 'main'                           # Main section name in config
 CONFIG_DEBUG       = 'debug'                          # Debug section name in config
 CONFIG_OWNER       = 'owner'                          # Owner section name in config
+CONFIG_LISTS       = 'lists'                          # White/black lists section name in config
 botName            = 'iSida'                          # Bot's name
 botVersionDef      = '6.0'                            # Bot's version
 base_type          = 'NoDB'                           # Bot's base type
@@ -863,6 +864,8 @@ if CONFIG_DEBUG not in SECTIONS:
 	Error('Debug options not found in %s' % CONFIG_FILE)
 if CONFIG_OWNER not in SECTIONS:
 	Error('Owner options not found in %s' % CONFIG_FILE)
+if CONFIG_LISTS not in SECTIONS:
+	pprint('!!! White/black lists options not found in %s' % CONFIG_FILE, 'red')
 
 CONFIG_API_TOKEN  = CONFIG.get(CONFIG_MAIN, 'token')
 BOT_NAME          = CONFIG.get(CONFIG_MAIN, 'bot_name').lower()
@@ -892,6 +895,14 @@ for plugin in plug_list:
 		for tmp in commands:
 			if len(tmp) == 5:
 				tmp.append({})
+			try:
+				lists = CONFIG.get(CONFIG_LISTS, tmp[0]).split()
+				opt = lists[0]
+				if opt in ['black', 'white']:
+					val = [int(v) for v in lists[1:]]
+					tmp[5][opt] = val
+			except:
+				pass
 			COMMANDS.append(tmp)
 pprint('*** Total plugins: %s' % len(plug_list), 'green')
 pprint('-'*50, 'blue')

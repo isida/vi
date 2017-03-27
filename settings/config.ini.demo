@@ -12,3 +12,7 @@ max_timeout: 15
 
 [owner]
 id: 12345678
+
+[lists]
+test: black 1234567 2345678
+botinfo: white 3456789 98765432
