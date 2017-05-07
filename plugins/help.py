@@ -65,12 +65,17 @@ def cmd_help(raw_in, text):
 
 def cmd_commands(raw_in):
 	IS_OWNER = raw_in['message']['from'].get('id', '') == OWNER_ID
+	try:
+		CHAT_ID = raw_in['message']['chat'].get('id', 0)
+	except:
+		CHAT_ID = 0
 	rez = []
 	for cmd in COMMANDS:
-		if IS_OWNER:
-			rez.append((cmd[0], get_su(cmd[2])))
-		elif not cmd[2]:
-			rez.append((cmd[0], ''))
+		if CHAT_ID not in cmd[5].get('black', []) and not (cmd[5].has_key('white') and CHAT_ID not in cmd[5].get('white', [])):
+			if IS_OWNER:
+				rez.append((cmd[0], get_su(cmd[2])))
+			elif not cmd[2]:
+				rez.append((cmd[0], ''))
 	rez.sort()
 	msg = 'I know commands:\n'
 	msg += ' | '.join('/%s %s' % t for t in rez)
