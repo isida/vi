@@ -94,8 +94,8 @@ def thr(func, param, name):
 		if 'thread' in MSG.lower():
 			THREAD_ERROR_COUNT += 1
 		else:
-			logging.exception(' [%s] %s' % (timeadd(tuple(time.localtime())), \
-								unicode(func)))
+			lt = datetime.datetime.now()
+			logging.exception(' [%s] %s' % (timeadd(lt), unicode(func)))
 		try:
 			tmp_th.kill()
 		except:
@@ -110,8 +110,8 @@ def log_execute(proc, params):
 	except SystemExit:
 		pass
 	except:
-		logging.exception(' [%s] %s' % (timeadd(tuple(time.localtime())), \
-							unicode(proc)))
+		lt = datetime.datetime.now()
+		logging.exception(' [%s] %s' % (timeadd(lt), unicode(proc)))
 
 # Decode from IDNA
 def deidna(text):
@@ -367,11 +367,11 @@ def get_color_win32(c):
 
 # Time and date to string
 def timeadd(lt):
-	return '%04d.%02d.%02d %02d:%02d:%02d' % lt[0:6]
+	return datetime.datetime.strftime(lt, "%Y.%m.%d %H:%M:%S")
 
 # Time to string
 def onlytimeadd(lt):
-	return '%02d:%02d:%02d' % lt[3:6]
+	return datetime.datetime.strftime(lt, "%H:%M:%S")
 
 # Exclude non-ascii symbols
 def parser(t):
@@ -394,7 +394,7 @@ def pprint(*text):
 	elif is_win32:
 		win_color = get_color_win32('clear')
 	text = text[0]
-	lt = tuple(time.localtime())
+	lt = datetime.datetime.now()
 	zz = '%s[%s]%s %s%s' % (wc, onlytimeadd(lt), c, text, wc)
 	last_logs_store = ['[%s] %s' % (onlytimeadd(lt), text)] + \
 						last_logs_store[:last_logs_size]
@@ -417,7 +417,7 @@ def pprint(*text):
 			except:
 				print parser(zz)
 	if DEBUG_LOG:
-		fname = SYSLOG_FOLDER % '%02d%02d%02d.txt' % lt[0:3]
+		fname = SYSLOG_FOLDER % datetime.datetime.strftime(lt, "%Y%m%d.txt")
 		fbody = '%s|%s\n' % (onlytimeadd(lt), text.replace('\n', '\r'))
 		fl = open(fname, 'a')
 		fl.write(fbody.encode('utf-8'))
@@ -928,7 +928,7 @@ while not GAME_OVER:
 		except:
 			MSG = unicode(MSG)
 		pprint('*** Error *** %s ***' % MSG, 'red')
-		logging.exception(' [%s] ' % timeadd(tuple(time.localtime())))
+		logging.exception(' [%s] ' % timeadd(datetime.datetime.now()))
 		if HALT_ON_EXCEPTION:
 			raise
 
