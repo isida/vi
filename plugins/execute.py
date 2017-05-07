@@ -25,7 +25,7 @@ calc_last_res = {}
 
 def cmd_execute(raw_in, text):
 	try:
-		msg = remove_sub_space(unicode(eval(text)))
+		msg = html_escape_soft(remove_sub_space(unicode(eval(text))))
 	except Exception, SM:
 		try:
 			SM = str(SM)
