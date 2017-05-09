@@ -25,13 +25,13 @@ def cmd_pbrate(raw_in):
     try:
         data = load_page('https://api.privatbank.ua/p24api/pubinfo?exchange&coursid=5')
         res = re.findall('<exchangerate ccy="(.*?)" base_ccy=".*?" buy="(\d*\.\d*)0*" sale="(\d*\.\d*)0*"/>', data)
-        msg = '<b>Privatbank exchange rates</b>\n<pre>Сurrency    Buy    Sale'
-        cico = {'RUR': '🇷🇺', 'USD': '🇺🇸', 'EUR': '🇫🇲'}
+        msg = '<b>Privatbank exchange rates</b>\n<pre>Сurrency    Buy      Sale'
+        cico = {'RUR': '🇷🇺', 'USD': '🇺🇸', 'EUR': '🇫🇲', 'BTC': '💰'}
         for i in res:
-            base_ccy = cico[i[0]] + i[0]
-            buy = i[1][:5]
-            sale = i[2][:5]
-            msg += '\n%s      %s  %s' % (base_ccy, buy, sale)
+            base_ccy = cico.get(i[0], '🔵') + i[0]
+            buy = round(float(i[1]), 2)
+            sale = round(float(i[2]), 2)
+            msg += '\n%s      %-7s  %-7s' % (base_ccy, buy, sale)
         msg += '</pre>'
     except:
         msg = 'Ooops! The market collapsed, the salary will not be!'
