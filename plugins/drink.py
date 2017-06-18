@@ -103,20 +103,23 @@ def cmd_calend(raw_in, text):
 			if len(hl) == 1:
 				d = re.search('class="img_small" /></a></td>\s+?<td>\s+?(.+?\.)\s+?</td>', data, re.S).group(1)
 				d = unescape(re.sub('\s+', ' ', d.strip()))
-				msg += '%s (%s) - %s\nhttp://www.calend.ru%s' % (hl[0][1], hl[0][2], d, hl[0][0])
+				msg += '📅 <a href="http://www.calend.ru%s">%s</a> (%s) - %s' % (hl[0][0], hl[0][1], hl[0][2], d)
 			elif hl:
+				d = '<b>%s</b>' % get_tag(data,'h1')
 				for a in hl:
-					msg += '\n%s (%s)' % (a[1], a[2])
+					msg = '%s:\n🔹%s' % (d, '\n🔹'.join(map(lambda x: '<a href="http://www.calend.ru%s">%s</a> (%s)' % x, hl)))
 		else:
 			d = '<b>%s</b>' % get_tag(data,'h1')
-			hl = re.findall('<a  href="/holidays(?:/\d*?)+?" title=".+?">(.+?)</a>', data)
+			hl = re.findall('<a  href="(/holidays(?:/\d*?)+?)" title=".+?">(.+?)</a>', data)
 			if hl:
-				msg = '%s:\n🔹%s' % (d, '\n🔹'.join(hl))
+				print hl[0]   
+				msg = '%s:\n🔹%s' % (d, '\n🔹'.join(map(lambda x: '<a href="http://www.calend.ru%s">%s</a>' % x, hl)))
+                
 	else:
 		msg = 'What?'
 	if not msg:
 		msg = 'Holiday: %s not found.' % text
-	send_msg(raw_in, msg)
+	send_msg(raw_in, msg, custom={'disable_web_page_preview': 'true'})
 
 commands = [['drink', cmd_to_drink, False, 'all', 'Find holiday [name_holiday/date]'],
 			['calend', cmd_calend, False, 'all', 'Find holiday [name_holiday/date]']]
