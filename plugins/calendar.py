@@ -33,7 +33,7 @@ def cmd_calendar(raw_in, text):
 	except:
 		year = tuple(time.localtime())[0]
 
-	msg = '📅 %s' % (timeadd(tuple(time.localtime())))
+	msg = '📅 %s' % (timeadd(datetime.datetime.now()))
 	msg += '\n<pre>Mo Tu We Th Fr Sa Su\n'
 	msg += '\n'.join([' '.join([['%2d' % r, '  '][r==0] for r in t]) for t in calendar.monthcalendar(year, month)])
 	msg += '</pre>'
