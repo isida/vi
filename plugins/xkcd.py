@@ -22,15 +22,15 @@
 # --------------------------------------------------------------------------- #
 
 def cmd_xkcd(raw_in):
-    try:
-        data = load_page('http://xkcd.ru/random/')
-        ttl = re.search('<h1>(.*?)</h1>', data).group(1)
-        img = re.search('http://xkcd.ru/i/.*?.png', data).group(0)
-        txt = unhtml_hard(re.search('<div class="comics_text">(.*?)</div>', data).group(1))
-        msg = '<a href="%s">%s</a>\n%s' % (img, ttl, txt)
-    except:
-        msg = 'Error!'
-    send_msg(raw_in, msg)
+	try:
+		data = load_page('http://xkcd.ru/random/')
+		ttl = re.search('<h1>(.*?)</h1>', data).group(1)
+		img = re.search('http[s]*://xkcd.ru/i/.*?.png', data).group(0)
+		txt = unhtml_hard(re.search('<div class="comics_text">(.*?)</div>', data).group(1))
+		msg = '<a href="%s">%s</a>\n%s' % (img, ttl, txt)
+	except:
+		msg = 'Error!'
+	send_msg(raw_in, msg)
 
 commands = [['xkcd', cmd_xkcd, False, 'raw', 'Show random picture from xkcd.ru']]
 

@@ -455,10 +455,9 @@ def remove_sub_space(t):
 
 # Send request
 def send_raw(raw_in, method, dt, fl={}):
-	global LAST_MESSAGE, TIMEOUT
+	global LAST_MESSAGE
 	request = requests.post(API_URL % method, data=dt, files = fl)
 	LAST_MESSAGE = time.time()
-	TIMEOUT = MIN_TIMEOUT
 	if not request.status_code == 200:
 		pprint('*** Error code on %s: %s' % (method, request.status_code), 'red')
 		pprint('Raw_in dump:\n%s' % json.dumps(raw_in, indent=2, separators=(',', ': ')), 'red')
@@ -546,7 +545,7 @@ def load_page(page_name, parameters=None):
 def check_updates():
 	global OFFSET
 	data = {'limit': 0,
-			'timeout': 0}
+			'timeout': 30}
 	if OFFSET:
 		data['offset'] = OFFSET + 1
 
@@ -821,12 +820,9 @@ size_overflow      = 262144                           # Web page limit in bytes
 #                                                     # Proxy settings
 user_agent         = 'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'
 #                                                     # User agent for web requests
-MIN_TIMEOUT        = 1                                # Minimal timeout between request updates
-MAX_TIMEOUT        = 15                               # Maximal timeout between request updates
-TIMEOUT            = 1                                # Default timeout between request updates
+TIMEOUT            = 0.1                              # Timeout between request updates
+MAX_TIMEOUT        = 15                               # Maximal timeout after request error
 LAST_MESSAGE       = time.time()                      # Last message time
-TIMEOUT_DIFF       = 60                               # Little sleep every 60 seconds
-TIMEOUT_STEP       = 1.3                              # Size of update time sleep
 CYCLES             = 0                                # Work cycles
 THREAD_COUNT       = 0                                # Executed threads
 THREAD_ERROR_COUNT = 0                                # Threads with error
@@ -875,10 +871,6 @@ DEBUG_CONSOLE     = get_config_bin(CONFIG, CONFIG_DEBUG, 'console')
 DEBUG_JSON        = get_config_bin(CONFIG, CONFIG_DEBUG, 'json')
 HALT_ON_EXCEPTION = get_config_bin(CONFIG, CONFIG_DEBUG, 'halt_on_exception')
 OWNER_ID          = get_config_int(CONFIG, CONFIG_OWNER, 'id')
-try:
-	MAX_TIMEOUT   = get_config_bin(CONFIG, CONFIG_OWNER, 'max_timeout')
-except:
-	pass
 
 API_URL = TELEGRAM_API_URL % CONFIG_API_TOKEN + '/%s'
 
@@ -912,10 +904,6 @@ pprint('Let\'s begin!', 'white')
 while not GAME_OVER:
 	try:
 		check_updates()
-		if (time.time() - LAST_MESSAGE) > TIMEOUT_DIFF and TIMEOUT <= MAX_TIMEOUT:
-			TIMEOUT = TIMEOUT * TIMEOUT_STEP
-			LAST_MESSAGE = time.time()
-			pprint('*** Sleep time: %.02f' % TIMEOUT, 'brown')
 		CYCLES += 1
 		time.sleep(TIMEOUT)
 	except KeyboardInterrupt:
