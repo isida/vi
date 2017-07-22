@@ -22,11 +22,12 @@
 # --------------------------------------------------------------------------- #
 
 def raw_bot_restart(raw_in, msg, status):
-	global GAME_OVER, BOT_EXIT_TYPE
-	send_msg(raw_in, msg)
-	check_updates()
+	global GAME_OVER, BOT_EXIT_TYPE, MAX_TIMEOUT
 	GAME_OVER = True
 	BOT_EXIT_TYPE = status
+	MAX_TIMEOUT = 0.001
+	send_msg(raw_in, msg)
+	check_updates()
 
 def cmd_update(raw_in):
 	raw_bot_restart(raw_in, 'Let\'s update!', 'update')

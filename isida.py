@@ -29,19 +29,21 @@ import time
 import traceback
 
 data_folder = 'data/%s'
-slog_folder	= data_folder % 'syslog/%s'
-tmp_folder	= data_folder % 'tmp/%s'
+slog_folder = data_folder % 'syslog/%s'
+tmp_folder  = data_folder % 'tmp/%s'
 
-updatelog_file	= slog_folder % 'update.log'
-ver_file		= tmp_folder % 'version'
-old_ver_file	= tmp_folder % 'ver'
-pid_file		= tmp_folder % 'isida.pid'
-starttime_file	= tmp_folder % 'starttime'
+updatelog_file  = slog_folder % 'update.log'
+ver_file        = tmp_folder % 'version'
+old_ver_file    = tmp_folder % 'ver'
+pid_file        = tmp_folder % 'isida.pid'
+starttime_file  = tmp_folder % 'starttime'
 
 id_append = ''
-GIT_VER_FORMAT	= '%s.%s-git%s'
-TIME_VER_FORMAT	= '%s-none%s'
+GIT_VER_FORMAT  = '%s.%s-git%s'
+TIME_VER_FORMAT = '%s-none%s'
 OFFSET          = 0 # Message offset
+RAW_IN          = ''
+mode            = ''
 
 def readfile(filename):
 	fp = file(filename)
@@ -130,7 +132,8 @@ if __name__ == "__main__":
 						t.kill()
 					elif str(t).startswith('<_Timer'):
 						t.cancel()
-				except: pass
+				except:
+					pass
 			mode = str(mode)
 			if mode == 'update':
 				update(USED_REPO)

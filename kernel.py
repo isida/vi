@@ -468,6 +468,8 @@ def send_raw(raw_in, method, dt, fl={}):
 
 # Send message
 def send_msg(raw_in, msg, parse_mode = 'HTML', custom={}):
+	global RAW_IN
+	RAW_IN = raw_in
 	#if parse_mode == 'HTML':
 	#	msg = html_escape_soft(msg)
 	MSG = { 'chat_id': raw_in['message']['chat'].get('id', ''),
@@ -820,7 +822,7 @@ size_overflow      = 262144                           # Web page limit in bytes
 #                                                     # Proxy settings
 user_agent         = 'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'
 #                                                     # User agent for web requests
-TIMEOUT            = 0.1                              # Timeout between request updates
+TIMEOUT            = 1                                # Timeout between request updates
 MAX_TIMEOUT        = 15                               # Maximal timeout after request error
 LAST_MESSAGE       = time.time()                      # Last message time
 CYCLES             = 0                                # Work cycles
@@ -900,15 +902,22 @@ pprint('*** Total plugins: %s' % len(plug_list), 'green')
 pprint('-'*50, 'blue')
 pprint('Let\'s begin!', 'white')
 
+if mode:
+	try:
+		send_msg(RAW_IN, 'Last mode: %s' % mode)
+	except:
+		pass
+
 # --- Main cycle ------------------------------------------------------------- #
 while not GAME_OVER:
 	try:
-		if check_updates():
-			CYCLES += 1
-			time.sleep(TIMEOUT)
-		else:
-			THREAD_ERROR_COUNT += 1
-			time.sleep(MAX_TIMEOUT)
+		if not GAME_OVER:
+			if check_updates():
+				CYCLES += 1
+				time.sleep(TIMEOUT)
+			else:
+				THREAD_ERROR_COUNT += 1
+				time.sleep(MAX_TIMEOUT)
 	except KeyboardInterrupt:
 		pprint('Shutdown by CTRL+C...', 'bright_red')
 		time.sleep(1)
