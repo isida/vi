@@ -112,7 +112,7 @@ def cmd_calend(raw_in, text):
 			d = '<b>%s</b>' % get_tag(data,'h1')
 			hl = re.findall('<a  href="(/holidays(?:/\d*?)+?)" title=".+?">(.+?)</a>', data)
 			if hl:
-				print hl[0]   
+				#print hl[0]   
 				msg = '%s:\n🔹%s' % (d, '\n🔹'.join(map(lambda x: '<a href="http://www.calend.ru%s">%s</a>' % x, hl)))
                 
 	else:
