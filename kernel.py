@@ -553,7 +553,6 @@ def check_updates():
 		request = requests.post(API_URL % 'getUpdates', data=data)
 	except requests.exceptions.ConnectionError:
 		pprint('*** Connection error on getUpdates. Waiting %s seconds.' % MAX_TIMEOUT, 'red')
-		time.sleep(MAX_TIMEOUT)
 		return False
 
 	if not request.status_code == 200:
@@ -903,9 +902,12 @@ pprint('Let\'s begin!', 'white')
 # --- Main cycle ------------------------------------------------------------- #
 while not GAME_OVER:
 	try:
-		check_updates()
-		CYCLES += 1
-		time.sleep(TIMEOUT)
+		if check_updates():
+			CYCLES += 1
+			time.sleep(TIMEOUT)
+		else:
+			THREAD_ERROR_COUNT += 1
+			time.sleep(MAX_TIMEOUT)
 	except KeyboardInterrupt:
 		pprint('Shutdown by CTRL+C...', 'bright_red')
 		time.sleep(1)
