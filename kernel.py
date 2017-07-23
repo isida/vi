@@ -567,7 +567,11 @@ def check_updates():
 	for msg_in in request.json()['result']:
 		if DEBUG_JSON:
 			pprint(json.dumps(msg_in, indent=2, separators=(',', ': ')), 'magenta')
-		OFFSET = msg_in['update_id']
+		if OFFSET:
+			OFFSET = msg_in['update_id']
+		else:
+			OFFSET = msg_in['update_id']
+			return True
 		try:
 			CHAT_ID = msg_in['message']['chat'].get('id', 0)
 		except:
