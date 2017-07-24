@@ -579,6 +579,10 @@ def check_updates():
 		if msg_in.has_key('edited_message'):
 			msg_in['message'] = msg_in['edited_message']
 			pprint('*** Edited message!', 'yellow')
+		elif msg_in.has_key('callback_query'):
+			msg_in['message'] = msg_in['callback_query']['message']
+			msg_in['message']['text'] = msg_in['callback_query']['data']
+			pprint('*** Callback query!', 'yellow')
 
 		#send_msg(msg_in, '<i>Edited messages not supported now!</i>')
 
