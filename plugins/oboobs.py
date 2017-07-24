@@ -25,7 +25,10 @@ def cmd_oboobs(raw_in):
 	try:
 		data = json.loads(load_page('http://api.oboobs.ru/noise/1/'))[0]
 		photo_url = "http://media.oboobs.ru/%s" % data['preview']
-		kbd = {"inline_keyboard": [[{'text': 'Another one', 'callback_data': 'oboobs'}]]}
+		kbd = {"inline_keyboard": [[
+									{'text': 'Another one', 'callback_data': 'oboobs'},
+									{'text': 'Obutts', 'callback_data': 'obutts'}
+								]]}
 		send_photo(raw_in, photo_url, custom={'reply_markup': json.dumps(kbd)})
 	except:
 		msg = 'Error!'
@@ -35,7 +38,10 @@ def cmd_obutts(raw_in):
 	try:
 		data = json.loads(load_page('http://api.obutts.ru/noise/1/'))[0]
 		photo_url = "http://media.obutts.ru/%s" % data['preview']
-		kbd = {"inline_keyboard": [[{'text': 'Another one', 'callback_data': 'obutts'}]]}
+		kbd = {"inline_keyboard": [[
+									{'text': 'Another one', 'callback_data': 'obutts'},
+									{'text': 'Oboobs', 'callback_data': 'oboobs'}
+								]]}
 		send_photo(raw_in, photo_url, custom={'reply_markup': json.dumps(kbd)})
 	except:
 		msg = 'Error!'
