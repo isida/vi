@@ -697,7 +697,7 @@ def check_updates():
 				pass
 				#pprint('Unknown message', 'red')
 				#pprint(json.dumps(msg_in, indent=2, separators=(',', ': ')), 'magenta')
-		return True
+	return True
 
 def get_tag(body, tag):
 	T = re.findall('<%s.*?>(.*?)</%s>' % (tag, tag), body, re.S)
