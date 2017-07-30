@@ -144,6 +144,8 @@ def logger(raw_in):
 						TEXT = '%s [Sticker]' % raw_in['message'].get('sticker',{}).get('emoji', '?')
 					elif raw_in['message'].has_key('document'):
 						TEXT = '📄 [Document]'
+					elif raw_in['message'].has_key('pinned_message'):
+						TEXT = '📌 <span class="pinned">%s</span>' % raw_in['message'].get('pinned_message',{}).get('text', '-')
 					else:
 						IMG = raw_in['message'].get('photo', '')
 						if IMG and type(IMG) == type(u''):

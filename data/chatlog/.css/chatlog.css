@@ -115,6 +115,12 @@ pre {
     white-space: pre;
     margin: 0px;
 	color: #57a478;
+	font-size: 14px;
+}
+
+.pinned {
+	color: #bd2d2d;
+    font-weight: bold;
 }
 
 .image {
