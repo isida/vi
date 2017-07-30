@@ -32,7 +32,7 @@ HTML_BODY = '''<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "h
 		<div class="main">
 			<div class="top">
 				<div class="link">
-				by <a href="https://t.me/isida_bot" class="title-link" target="_blank">@isida_bot</a>
+				Logs by <a href="https://t.me/isida_bot" class="title-link" target="_blank">@isida_bot</a>
 				</div>
 				<div class="chat">CHATNAME - DATE</div>
 				</div>
