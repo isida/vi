@@ -140,16 +140,22 @@ def logger(raw_in):
 			else:
 				TEXT = raw_in['message'].get('text', '').replace('\n', '<br />')
 				if not TEXT:
+					CAPTION = raw_in['message'].get('caption', '')
 					if raw_in['message'].has_key('sticker'):
 						TEXT = '%s [Sticker]' % raw_in['message'].get('sticker',{}).get('emoji', '?')
 					elif raw_in['message'].has_key('document'):
-						TEXT = '📄 [Document]'
+						if CAPTION:
+							TEXT = '📄 %s [Document]' % CAPTION
+						else:
+							TEXT = '📄 [Document]'
 					elif raw_in['message'].has_key('pinned_message'):
 						TEXT = '📌 <span class="pinned">%s</span>' % raw_in['message'].get('pinned_message',{}).get('text', '-')
 					else:
 						IMG = raw_in['message'].get('photo', '')
 						if IMG and type(IMG) == type(u''):
-								TEXT = '🖼<br /><img class="image" src="%s" alt="" />' % IMG
+							TEXT = '🖼 %s<br /><img class="image" src="%s" alt="" />' % (CAPTION, IMG)
+						elif CAPTION:
+							TEXT = '🖼 %s' % CAPTION
 				else:
 					TEXT = replace_items(TEXT)
 				data = '<span class="time">%s</span> <span class="user">%s</span> <span class="text">%s</span><br />\n' % (TIME, NAME, TEXT)
@@ -158,8 +164,8 @@ def logger(raw_in):
 			fp.close()
 			data_all = readfile(LOG_FOLDER % FOLDER_RAW)
 			chat_id = raw_in['message'].get('chat', {}).get('id', '')
-			if TYPE in ['supergroup', 'private']:
-				if TYPE == 'supergroup':
+			if TYPE in ['supergroup', 'group', 'private']:
+				if TYPE in ['supergroup', 'group']:
 					CHAT_TITLE = raw_in['message'].get('chat', {}).get('title', '')
 				else:
 					CHAT_TITLE = ' '.join([FIRSTNAME, LASTNAME])
