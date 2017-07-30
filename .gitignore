@@ -95,4 +95,7 @@ data/tmp/version
 plugins/_*.py
 desktop.ini
 
+data/chatlog/-[0-9]*
+data/chatlog/[0-9]*
+
 # The end is near!

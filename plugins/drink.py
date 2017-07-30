@@ -28,20 +28,20 @@ def cmd_to_drink(raw_in, text):
 		'nineteenth', 'twentieth', 'twenty-first', 'twenty-second', 'twenty-third',
 		'twenty-fourth', 'twenty-fifth', 'twenty-sixth', 'twenty-seventh',
 		'twenty-eighth', 'twenty-nineth', 'thirtieth', 'thirty-first']
-	drink_mmas1 = ['january', 'february', 'march', 'april', 'may', 'june', 'july',
-		'august', 'september', 'october', 'november', 'december']
-	drink_mmas2 = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
-		'August', 'September', 'October', 'November', 'December']
-	drink_wday = ['monday', 'tuesday', 'wendesday', 'thirsday', 'friday',
-		'saturday', 'sunday']
-	drink_lday = ['last', 'last', 'Last', 'last', 'Last', 'Last', 'lAst']
+	drink_mmas1 = ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль',
+		'авгест', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь']
+	drink_mmas2 = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля',
+		'августа', 'сентября', 'октября', 'ноября', 'декабря']
+	drink_wday = ['понедельник', 'вторник', 'среда', 'четверг', 'пятница',
+		'суббота', 'воскресенье']
+	drink_lday = ['последний', 'последний', 'последняя', 'последний', 'последняя', 'последняя', 'последнее']
 	date_file = DATA_FOLDER % 'date.txt'
 	if os.path.isfile(date_file):
 		ddate = readfile(date_file).decode('UTF')
 		week1 = ''
 		week2 = ''
 		if not ddate:
-			msg = 'Read file error.'
+			msg = 'Ошибка чтения!'
 		else:
 			if len(text) <= 2:
 				ltim = tuple(time.localtime())
@@ -80,11 +80,11 @@ def cmd_to_drink(raw_in, text):
 					except:
 						pass
 			if msg == '':
-				msg = 'Holiday: %s not found.' % or_text
+				msg = 'Повод: %s не найден.' % or_text
 			else:
-				msg = 'I know holidays: %s' % msg
+				msg = 'Я знаю поводы: %s' % msg
 	else:
-		msg = 'Database doesn\'t exist.'
+		msg = 'База не найдена.'
 	send_msg(raw_in, msg)
 
 def cmd_calend(raw_in, text):

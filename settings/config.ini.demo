@@ -16,3 +16,7 @@ id: 12345678
 [lists]
 test: black 1234567 2345678
 botinfo: white 3456789 98765432
+
+[log]
+url: http://your-mega-site.com/logs
+debug: false

@@ -455,9 +455,9 @@ def remove_sub_space(t):
 
 # Send request
 def send_raw(raw_in, method, dt, fl={}):
-	global LAST_MESSAGE
+	if LOGGER:
+		logger_self(dt)
 	request = requests.post(API_URL % method, data=dt, files = fl)
-	LAST_MESSAGE = time.time()
 	if not request.status_code == 200:
 		pprint('*** Error code on %s: %s' % (method, request.status_code), 'red')
 		pprint('Raw_in dump:\n%s' % json.dumps(raw_in, indent=2, separators=(',', ': ')), 'red')
@@ -576,6 +576,8 @@ def check_updates():
 			CHAT_ID = msg_in['message']['chat'].get('id', 0)
 		except:
 			CHAT_ID = 0
+		if LOGGER:
+			logger(msg_in)
 		if msg_in.has_key('edited_message'):
 			msg_in['message'] = msg_in['edited_message']
 			pprint('*** Edited message!', 'yellow')
@@ -832,12 +834,12 @@ user_agent         = 'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KH
 #                                                     # User agent for web requests
 TIMEOUT            = 1                                # Timeout between request updates
 MAX_TIMEOUT        = 15                               # Maximal timeout after request error
-LAST_MESSAGE       = time.time()                      # Last message time
 CYCLES             = 0                                # Work cycles
 THREAD_COUNT       = 0                                # Executed threads
 THREAD_ERROR_COUNT = 0                                # Threads with error
 GAME_OVER          = False                            # Bot's status
 BOT_EXIT_TYPE      = ''                               # Reason for bot's kernel exit
+LOGGER             = False                            # Logger plugin
 
 # --- Init ------------------------------------------------------------------- #
 try:

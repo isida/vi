@@ -39,6 +39,8 @@ def cmd_show_error(raw_in, text):
 			if text != '':
 				msg += '\n%s' % '\n'.join('<pre>%s</pre>' % html_escape_soft(t) \
 					for t in log[log_len-cmd:log_len])
+			else:
+				msg += '\nLast error: /error_1'
 		else:
 			msg = '👍🏻 No Errors!'
 	else:
