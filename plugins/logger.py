@@ -64,7 +64,7 @@ if not os.path.exists(LOG_FOLDER % ''):
 def cmd_log(raw_in, text):
 	if LOG_URL:
 		chat_id = raw_in['message'].get('chat', {}).get('id', '')
-		msg = 'Logs are <a href="%s/%s">here</a>!' % (LOG_URL, chat_id)
+		msg = 'Logs are <a href="%s/%s/">here</a>!' % (LOG_URL, chat_id)
 	else:
 		msg = 'Logs not configured!'
 	send_msg(raw_in, msg, custom={'disable_web_page_preview': 'true'})
