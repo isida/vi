@@ -26,7 +26,7 @@ HTML_BODY = '''<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "h
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<link href="../../../.css/chatlog.css" rel="stylesheet" type="text/css" />
-		<title>CHATNAME - DATE</title>
+		<title>CHATNAME_TITLE - DATE_TITLE</title>
 	</head>
 	<body>
 		<div class="main">
@@ -34,7 +34,7 @@ HTML_BODY = '''<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "h
 				<div class="link">
 				Logs by <a href="https://t.me/isida_bot" class="title-link" target="_blank">@isida_bot</a>
 				</div>
-				<div class="chat">CHATNAME - DATE</div>
+				<div class="chat">CHATNAME_LINK - DATE_LINK</div>
 				</div>
 				<div class="container">
 				BODY
@@ -175,11 +175,13 @@ def logger(raw_in):
 				CHAT_ID[chat_id] = [CHAT_TITLE, CHAT_NAME]
 			CHAT_TITLE = CHAT_ID.get(chat_id,[''])[0]
 			CHAT_NAME = CHAT_ID.get(chat_id,['', ''])[1]
+			HB = HTML_BODY.replace('CHATNAME_TITLE', CHAT_TITLE)
 			if CHAT_NAME:
 				CHAT_TITLE += ' - <a href="https://t.me/%s" class="title-link" target="_blank">@%s</a>' % (CHAT_NAME, CHAT_NAME)
-			HB = HTML_BODY.replace('CHATNAME', CHAT_TITLE)
+			HB = HB.replace('CHATNAME_LINK', CHAT_TITLE)
 			_DATE = '<a href="../.." class="title-link">%s</a>/<a href=".." class="title-link">%s</a>/%s' % tuple(DATE)
-			HB = HB.replace('DATE', _DATE)
+			HB = HB.replace('DATE_TITLE', '/'.join(DATE))
+			HB = HB.replace('DATE_LINK', _DATE)
 			HB = HB.replace('BODY', data_all)
 			writefile(LOG_FOLDER % FOLDER_HTML, HB)
 
