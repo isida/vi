@@ -156,6 +156,8 @@ def logger(raw_in):
 							TEXT = '🖼 %s<br /><img class="image" src="%s" alt="" />' % (CAPTION, IMG)
 						elif CAPTION:
 							TEXT = '🖼 %s' % CAPTION
+						else:
+							TEXT = '🖼 [Picture]'
 				else:
 					TEXT = replace_items(TEXT)
 				data = '<span class="time">%s</span> <span class="user">%s</span> <span class="text">%s</span><br />\n' % (TIME, NAME, TEXT)
