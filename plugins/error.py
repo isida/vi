@@ -41,6 +41,7 @@ def cmd_show_error(raw_in, text):
 					for t in log[log_len-cmd:log_len])
 			else:
 				msg += '\nLast error: /error_1'
+			msg += '\nClear error: /error_clear'
 		else:
 			msg = '👍🏻 No Errors!'
 	else:
