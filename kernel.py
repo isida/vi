@@ -456,7 +456,10 @@ def remove_sub_space(t):
 # Send request
 def send_raw(raw_in, method, dt, fl={}):
 	if LOGGER:
-		logger_self(dt)
+		try:
+			logger_self(dt)
+		except:
+			pprint(json.dumps(dt, indent=2, separators=(',', ': ')), 'red')
 	request = requests.post(API_URL % method, data=dt, files = fl)
 	if not request.status_code == 200:
 		pprint('*** Error code on %s: %s' % (method, request.status_code), 'red')
@@ -577,7 +580,10 @@ def check_updates():
 		except:
 			CHAT_ID = 0
 		if LOGGER:
-			logger(msg_in)
+			try:
+				logger(msg_in)
+			except:
+				pprint(json.dumps(msg_in, indent=2, separators=(',', ': ')), 'red')
 		if msg_in.has_key('edited_message'):
 			msg_in['message'] = msg_in['edited_message']
 			pprint('*** Edited message!', 'yellow')
