@@ -177,7 +177,7 @@ def logger(raw_in):
 			CHAT_TITLE = CHAT_ID.get(chat_id,[''])[0]
 			CHAT_NAME = CHAT_ID.get(chat_id,['', ''])[1]
 			HB = HTML_BODY.replace('CHATNAME_TITLE', CHAT_TITLE)
-			if SYMLINK
+			if SYMLINK:
 				CT = CHAT_TITLE
 				if CHAT_NAME:
 					CT += ' - %s' CHAT_NAME
