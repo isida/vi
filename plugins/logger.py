@@ -182,10 +182,7 @@ def logger(raw_in):
 				if CHAT_NAME:
 					CT += ' - %s' % CHAT_NAME
 				if CT and not os.path.exists(LOG_FOLDER % CT):
-					try:
-						os.symlink(chat_id, LOG_FOLDER % CT)
-					except:
-						pass
+					os.symlink('%s' % chat_id, LOG_FOLDER % CT)
 			if CHAT_NAME:
 				CHAT_TITLE += ' - <a href="https://t.me/%s" class="title-link" target="_blank">@%s</a>' % (CHAT_NAME, CHAT_NAME)
 			HB = HB.replace('CHATNAME_LINK', CHAT_TITLE)
