@@ -180,7 +180,7 @@ def logger(raw_in):
 			if SYMLINK:
 				CT = CHAT_TITLE
 				if CHAT_NAME:
-					CT += ' - %s' CHAT_NAME
+					CT += ' - %s' % CHAT_NAME
 				if CT and not os.path.exists(LOG_FOLDER % CT):
 					try:
 						os.symlink(chat_id, LOG_FOLDER % CT)
