@@ -62,6 +62,9 @@ except:
 if not os.path.exists(LOG_FOLDER % ''):
 	os.mkdir(LOG_FOLDER % '')
 
+def lr(t):
+	return ''.join([['?', l][12288>=ord(l)<=40960] for l in t])
+
 def cmd_log(raw_in, text):
 	if LOG_URL:
 		chat_id = raw_in['message'].get('chat', {}).get('id', '')
@@ -180,7 +183,8 @@ def logger(raw_in):
 			if SYMLINK:
 				CT = CHAT_TITLE
 				if CHAT_NAME:
-					CT += ' - %s' % CHAT_NAME
+					CT += ' - @%s' % CHAT_NAME
+				CT = lr(CT)
 				if CT and not os.path.exists(LOG_FOLDER % CT):
 					os.symlink('%s' % chat_id, LOG_FOLDER % CT)
 			if CHAT_NAME:
@@ -190,6 +194,7 @@ def logger(raw_in):
 			HB = HB.replace('DATE_TITLE', '/'.join(DATE))
 			HB = HB.replace('DATE_LINK', _DATE)
 			HB = HB.replace('BODY', data_all)
+			HB = lr(HB)
 			writefile(LOG_FOLDER % FOLDER_HTML, HB)
 
 commands = [['log', cmd_log, False, 'all', 'Show log info']]

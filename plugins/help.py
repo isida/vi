@@ -59,6 +59,7 @@ def cmd_help(raw_in, text):
 						rez.append((cmd[0], cmd[4], ''))
 			if rez:
 				msg = '\n'.join('/%s - %s %s' % t for t in rez)
+				msg = msg.replace('  ', ' ').strip()
 			else:
 				msg = 'Not found.'
 		send_msg(raw_in, msg)
@@ -79,6 +80,7 @@ def cmd_commands(raw_in):
 	rez.sort()
 	msg = 'I know commands:\n'
 	msg += ' | '.join('/%s %s' % t for t in rez)
+	msg = msg.replace('  ', ' ').strip()
 	send_msg(raw_in, msg)
 
 def cmd_start(raw_in):
