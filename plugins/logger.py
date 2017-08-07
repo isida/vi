@@ -63,7 +63,7 @@ if not os.path.exists(LOG_FOLDER % ''):
 	os.mkdir(LOG_FOLDER % '')
 
 def lr(t):
-	return ''.join([['?', l][12288>=ord(l)<=40960] for l in t])
+	return t.replace('\xe2\x80\xae', '?')
 
 def cmd_log(raw_in, text):
 	if LOG_URL:
@@ -103,7 +103,7 @@ def logger(raw_in):
 	if FOLDER:
 		DATE = ['%02d' % t for t in time.localtime()[:3]]
 		FOLDER_RAW = '%s/%s/.template' % (FOLDER, '/'.join(DATE[:-1]))
-		if os.path.exists(LOG_FOLDER % FOLDER_RAW) and time.localtime(os.path.getctime(LOG_FOLDER % FOLDER_RAW))[2] != time.localtime()[2]:
+		if os.path.exists(LOG_FOLDER % FOLDER_RAW) and time.localtime(os.path.getmtime(LOG_FOLDER % FOLDER_RAW))[2] != time.localtime()[2]:
 			os.remove(LOG_FOLDER % FOLDER_RAW)
 		FOLDER_HTML = '%s/%s.html' % (FOLDER, '/'.join(DATE))
 		if not os.path.exists(LOG_FOLDER % FOLDER):
