@@ -576,7 +576,12 @@ def check_updates():
 			OFFSET = msg_in['update_id']
 			return True
 		try:
-			CHAT_ID = msg_in['message']['chat'].get('id', 0)
+			if msg_in.has_key('message'):
+				CHAT_ID = msg_in['message']['chat'].get('id', 0)
+			elif msg_in.has_key('callback_query'):
+				CHAT_ID = msg_in['callback_query']['message']['chat'].get('id', 0)
+			else:
+				CHAT_ID = 0
 		except:
 			CHAT_ID = 0
 		if LOGGER:
