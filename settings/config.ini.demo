@@ -22,7 +22,7 @@ botinfo: white 3456789 98765432
 ; pip install -U requests[socks]
 ; Then uncomment settings bellow:
 ; [proxy]
-; user: proxy-username_if_needed
+; user: proxy_username_if_needed
 ; pass: proxy_password_if_nedded
 ; host: proxy_host
 ; port: proxy_port
