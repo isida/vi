@@ -460,7 +460,10 @@ def send_raw(raw_in, method, dt, fl={}):
 			logger_self(dt)
 		except:
 			pprint(json.dumps(dt, indent=2, separators=(',', ': ')), 'red')
-	request = requests.post(API_URL % method, data=dt, files = fl)
+	request = requests.post(API_URL % method,
+							data = dt,
+							files = fl,
+							proxies = PROXIES)
 	if not request.status_code == 200:
 		pprint('*** Error code on %s: %s' % (method, request.status_code), 'red')
 		pprint('Raw_in dump:\n%s' % json.dumps(raw_in, indent=2, separators=(',', ': ')), 'red')
@@ -555,7 +558,9 @@ def check_updates():
 		data['offset'] = OFFSET + 1
 
 	try:
-		request = requests.post(API_URL % 'getUpdates', data=data)
+		request = requests.post(API_URL % 'getUpdates',
+								data = data,
+								proxies = PROXIES)
 	except requests.exceptions.ConnectionError:
 		pprint('*** Connection error on getUpdates. Waiting %s seconds.' % MAX_TIMEOUT, 'red')
 		return False
@@ -834,8 +839,9 @@ CONFIG_MAIN        = 'main'                           # Main section name in con
 CONFIG_DEBUG       = 'debug'                          # Debug section name in config
 CONFIG_OWNER       = 'owner'                          # Owner section name in config
 CONFIG_LISTS       = 'lists'                          # White/black lists section name in config
+CONFIG_PROXY       = 'proxy'                          # Proxy section name in config
 botName            = 'iSida'                          # Bot's name
-botVersionDef      = '6.0'                            # Bot's version
+botVersionDef      = '6.1'                            # Bot's version
 base_type          = 'NoDB'                           # Bot's base type
 www_get_timeout    = 15                               # Timeout for web requests
 size_overflow      = 262144                           # Web page limit in bytes
@@ -885,6 +891,32 @@ if CONFIG_OWNER not in SECTIONS:
 	Error('Owner options not found in %s' % CONFIG_FILE)
 if CONFIG_LISTS not in SECTIONS:
 	pprint('!!! White/black lists options not found in %s' % CONFIG_FILE, 'red')
+if CONFIG_PROXY not in SECTIONS:
+	pprint('Proxy settings not found in %s' % CONFIG_FILE, 'white')
+	PROXIES = {}
+else:
+	pprint('Read proxy settings...', 'white')
+	proxy = {}
+	proxy['HOST'] = CONFIG.get(CONFIG_PROXY, 'host')
+	proxy['PORT'] = CONFIG.get(CONFIG_PROXY, 'port')
+	proxy_string = '%(HOST)s:%(PORT)s'
+	try:
+		itm = CONFIG.get(CONFIG_PROXY, 'user')
+		proxy['USER'] = itm
+	except:
+		pass
+	try:
+		itm = CONFIG.get(CONFIG_PROXY, 'pass')
+		proxy['PASS'] = itm
+	except:
+		pass
+	if proxy.has_key('USER') and proxy.has_key('PASS'):
+		proxy_string = '%(USER)s:%(PASS)s@' + proxy_string
+	elif proxy.has_key('USER') and not proxy.has_key('PASS'):
+		proxy_string = '%(USER)s@' + proxy_string
+	proxy_string = 'socks5://' + proxy_string
+	PROXIES = {'http':  proxy_string % proxy,
+			   'https': proxy_string % proxy}
 
 CONFIG_API_TOKEN  = CONFIG.get(CONFIG_MAIN, 'token')
 BOT_NAME          = CONFIG.get(CONFIG_MAIN, 'bot_name').lower()

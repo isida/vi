@@ -17,6 +17,16 @@ id: 12345678
 test: black 1234567 2345678
 botinfo: white 3456789 98765432
 
+; --- Socks5 proxy settings ---
+; Install requests with socks support via:
+; pip install -U requests[socks]
+; Then uncomment settings bellow:
+; [proxy]
+; user: proxy-username_if_needed
+; pass: proxy_password_if_nedded
+; host: proxy_host
+; port: proxy_port
+
 [log]
 url: http://your-mega-site.com/logs
 debug: false
