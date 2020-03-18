@@ -24,8 +24,6 @@
 
 def cmd_yandex_currency(raw_in):
 	try:
-		import ssl
-		ssl._create_default_https_context = ssl._create_unverified_context
 		data = requests.get('https://yandex.ru').content
 		regexp = '''
 			   <span class="inline-stocks__value_inner">(.*?)</span></span><span.*?>(.*?)</span>\
