@@ -346,7 +346,7 @@ def get_os_version():
 	else:
 		isidaOs = 'unknown'
 	return isidaOs
-	
+
 # Get color by name on Linux
 def get_color(c):
 	color = os.environ.has_key('TERM')
@@ -504,7 +504,7 @@ def send_document(raw_in, document, custom={}):
 		FLS = {}
 	else:
 		MSG = { 'chat_id': raw_in['message']['chat'].get('id', '') }
-		FLS = {'document': (document, open(document, "rb"))} 
+		FLS = {'document': (document, open(document, "rb"))}
 	MSG.update(custom)
 	return send_raw(raw_in, 'sendDocument', MSG, FLS)
 
