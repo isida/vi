@@ -32,16 +32,12 @@ def cmd_yandex_currency(raw_in):
 		'''.replace('\t', '').replace('\n', '').strip()
 		res = re.findall(regexp , data)
 		r = [res[0][t:t+2] for t in xrange(0, len(res[0]), 2)]
-		print 4
 		msg = '<b>Yandex exchange rates</b><pre>'
 		icons = [['USD', '🇺🇸'], ['EUR', '🇫🇲'], ['OIL', '🛢']]
 		for n, i in enumerate(icons):
-			print n, i
 			msg += '\n%s %-7s %-7s %s' % (i[1], i[0], r[n][0].replace(',', '.'), r[n][1].replace(',', '.'))
 		msg += '</pre>'
-		print 5
 	except:
-		raise
 		msg = 'Ooops! The market collapsed, the salary will not be!'
 	send_msg(raw_in, msg)
 
