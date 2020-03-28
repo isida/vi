@@ -41,7 +41,7 @@ def cmd_event(raw_in, less):
 	global EVENTS
 	MESSAGE = raw_in.get('message', {})
 	CHAT = MESSAGE.get('chat', {})
-	if CHAT.get('type', '') == 'group':
+	if CHAT.get('type', '') in ['supergroup', 'group']:
 		if not less and raw_in['message'].has_key('reply_to_message'):
 			if raw_in['message']['reply_to_message'].has_key('text'):
 				less = raw_in['message']['reply_to_message']['text']
@@ -71,7 +71,7 @@ def cmd_events(raw_in):
 	global EVENTS
 	MESSAGE = raw_in.get('message', {})
 	CHAT = MESSAGE.get('chat', {})
-	if CHAT.get('type', '') == 'group':
+	if CHAT.get('type', '') in ['supergroup', 'group']:
 		CHAT_ID = CHAT['id']
 		FROM = MESSAGE['from']
 		USER_ID = FROM['id']
