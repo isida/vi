@@ -23,22 +23,20 @@
 # --------------------------------------------------------------------------- #
 
 def cmd_yandex_currency(raw_in):
-	try:
-		data = requests.get('https://yandex.ru').content
-		regexp = '''
-			   <span class="inline-stocks__value_inner">(.*?)</span></span><span.*?>(.*?)</span>\
-			.*?<span class="inline-stocks__value_inner">(.*?)</span></span><span.*?>(.*?)</span>\
-			.*?<span class="inline-stocks__value_inner">(.*?)</span></span><span.*?>(.*?)<span
-		'''.replace('\t', '').replace('\n', '').strip()
-		res = re.findall(regexp , data)
-		r = [res[0][t:t+2] for t in xrange(0, len(res[0]), 2)]
-		msg = '<b>Yandex rates</b><pre>'
-		icons = ['🇺🇸', '🇫🇲', '🛢']
-		for n, i in enumerate(icons):
-			msg += '\n%s %s %s' % (i, r[n][0].replace(',', '.'), r[n][1].replace(',', '.'))
-		msg += '</pre>'
-	except:
-		msg = 'Ooops! The market collapsed, the salary will not be!'
+	data = requests.get('https://yandex.ru').content
+	regexp = '''<span.*?>(.+?)</span'''
+	data = data.split('<span class="inline-stocks__value_inner">')
+	r = []
+	for t in data:
+		cur = t.split('<', 1)[0]
+		stat = re.findall(regexp, t)[0].split('<', 1)[0]
+		r.append([cur, stat])
+	r = r[-3:]
+	msg = '<b>Yandex rates</b><pre>'
+	icons = ['🇺🇸', '🇫🇲', '🛢']
+	for n, i in enumerate(icons):
+		msg += '\n%s %s %s' % (i, r[n][0].replace(',', '.'), r[n][1].replace(',', '.'))
+	msg += '</pre>'
 	send_msg(raw_in, msg)
 
 commands = [['ycurr', cmd_yandex_currency, False, 'raw', 'Yandex exchange rate']]
