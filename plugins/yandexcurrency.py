@@ -34,8 +34,9 @@ def cmd_yandex_currency(raw_in):
 	r = r[-3:]
 	msg = '<b>Yandex rates</b><pre>'
 	icons = ['🇺🇸', '🇫🇲', '🛢']
-	for n, i in enumerate(icons):
-		msg += '\n%s %s %s' % (i, r[n][0].replace(',', '.'), r[n][1].replace(',', '.'))
+	values = ['R', 'R', '%']
+	for n, i in enumerate(zip(icons, values)):
+		msg += '\n%s%s %s%s' % (i[0], r[n][0].replace(',', '.'), r[n][1].replace(',', '.'), i[1])
 	msg += '</pre>'
 	send_msg(raw_in, msg)
 
