@@ -35,7 +35,7 @@ def cmd_execute(raw_in, text):
 def cmd_calc(raw_in, text):
 	global calc_last_res
 	ID = raw_in['message']['from']['id']
-	if 'ans' in text.lower() and calc_last_res.has_key(ID):
+	if 'ans' in text.lower() and ID in calc_last_res:
 		text = text.lower().replace('ans', calc_last_res[ID])
 	legal = string.digits + string.ascii_letters + '*/+-()=^!<>. '
 	ppc = 1

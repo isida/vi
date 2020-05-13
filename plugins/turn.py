@@ -34,8 +34,8 @@ def turner_raw(to_turn):
 	return msg
 
 def cmd_turn(raw_in, less):
-	if not less and raw_in['message'].has_key('reply_to_message'):
-		if raw_in['message']['reply_to_message'].has_key('text'):
+	if not less and 'reply_to_message' in raw_in['message']:
+		if 'text' in raw_in['message']['reply_to_message']:
 			less = raw_in['message']['reply_to_message']['text']
 	if less:
 		msg = turner_raw(less)

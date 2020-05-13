@@ -42,8 +42,8 @@ def cmd_event(raw_in, less):
 	MESSAGE = raw_in.get('message', {})
 	CHAT = MESSAGE.get('chat', {})
 	if CHAT.get('type', '') in ['supergroup', 'group']:
-		if not less and raw_in['message'].has_key('reply_to_message'):
-			if raw_in['message']['reply_to_message'].has_key('text'):
+		if not less and 'reply_to_message' in raw_in['message']:
+			if 'text' in raw_in['message']['reply_to_message']:
 				less = raw_in['message']['reply_to_message']['text']
 		if less:
 			CHAT_ID = CHAT['id']
@@ -51,7 +51,7 @@ def cmd_event(raw_in, less):
 			USER_ID = FROM['id']
 			EVENT_NAME = less.capitalize().replace(' ', '_')
 			EVENTS[CHAT_ID] = EVENTS.get(CHAT_ID, {})
-			if EVENTS[CHAT_ID].has_key(EVENT_NAME):
+			if EVENT_NAME in EVENTS[CHAT_ID]:
 				if USER_ID == EVENTS[CHAT_ID][EVENT_NAME]['id']:
 					msg = '❎ Event `%s` removed' % EVENT_NAME
 					_ = EVENTS[CHAT_ID].pop(EVENT_NAME)

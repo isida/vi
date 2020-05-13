@@ -273,8 +273,8 @@ def parser(t):
 	try:
 		return ''.join([['?', l][l<='~'] for l in unicode(t)])
 	except:
-		fp = file(slog_folder % 'critical_exception_%s.txt' % int(time.time()), 'wb')
-		fp.write(t)
+		with open(slog_folder % 'critical_exception_%s.txt' % int(time.time()), 'wb') as fp:
+			fp.write(t)
 		fp.close()
 
 # Log message

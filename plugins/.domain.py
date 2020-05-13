@@ -74,10 +74,10 @@ def cmd_domaininfo(raw_in, text):
 				for tmp in body:
 					if ':' in tmp:
 						if len(tmp.split(':')[0].split()) <= 2 and len(tmp.split(':')[1]) >= 2:
-							if not tmp_body.has_key(tmp.split(':')[1]):
+							if tmp.split(':')[1] not in tmp_body:
 								tmp_body[tmp.split(':')[1]]=tmp.split(':')[0]
 								newbody.append(tmp)
-					elif tmp.count(' ') <= 4 and not tmp_body.has_key(tmp):
+					elif tmp.count(' ') <= 4 and tmp not in tmp_body:
 						tmp_body[tmp] = tmp
 						newbody.append(tmp)
 				msg += '\n'+'\n'.join(newbody)
