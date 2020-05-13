@@ -21,15 +21,15 @@ More info:
 
 Quick start:
 ```
-pip install chardet
-pip install feedparser
-pip install requests
-pip install pysocks
+pip3 install chardet
+pip3 install feedparser
+pip3 install requests
+pip3 install pysocks
 git clone https://github.com/isida/vi.git isida-vi
 cd isida-vi
 cp settings/config.ini.demo settings/config.ini
 nano settings/config.ini
-python isida.py
+python3 isida.py
 ```
 
 ------
