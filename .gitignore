@@ -98,5 +98,6 @@ desktop.ini
 data/chatlog/-[0-9]*
 data/chatlog/[0-9]*
 data/chatlog/*@*
+*.tmp
 
 # The end is near!

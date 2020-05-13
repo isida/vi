@@ -24,10 +24,23 @@ pip install chardet
 pip install feedparser
 pip install requests
 pip install pysocks
-git clone https://github.com/isida/vi.git
+git clone https://github.com/isida/vi.git isida-vi
+cd isida-vi
 cp settings/config.ini.demo settings/config.ini
 nano settings/config.ini
 python isida.py
+```
+
+------
+
+Quick start with Docker:
+```
+git clone https://github.com/isida/vi.git isida-vi
+cd isida-vi
+cp settings/config.ini.demo settings/config.ini
+nano settings/config.ini
+docker build -t isida-vi .
+docker run -d isida-vi
 ```
 
 ------
