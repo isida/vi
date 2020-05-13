@@ -39,11 +39,12 @@ pid_file        = tmp_folder % 'isida.pid'
 starttime_file  = tmp_folder % 'starttime'
 
 id_append = ''
-GIT_VER_FORMAT  = '%s.%s-git%s'
-TIME_VER_FORMAT = '%s-none%s'
-OFFSET          = 0 # Message offset
-RAW_IN          = ''
-mode            = ''
+GIT_VER_FORMAT    = '%s.%s-git%s'
+TIME_VER_FORMAT   = '%s-none%s'
+DOCKER_VER_FORMAT = '%s-docker%s'
+OFFSET            = 0 # Message offset
+RAW_IN            = ''
+mode              = ''
 
 def readfile(filename):
 	fp = file(filename)
@@ -83,10 +84,13 @@ def update(USED_REPO):
 		writefile(ver_file, unicode(GIT_VER_FORMAT % (os.path.getsize(ver_file)+1,revno,id_append)).encode('utf-8'))
 		os.system('git log -1 > %s' % updatelog_file)
 		writefile(updatelog_file, unicode(readfile(updatelog_file)).replace('\n\n','\n').replace('\r','').replace('\t',''))
+	elif USED_REPO == 'docker':
+		os.system('echo Update not available inside docker image! > %s' % updatelog_file)
 	else:
 		os.system('echo Update not available! Read wiki at http://isida.dsy.name to use GIT! > %s' % updatelog_file)
 
 if __name__ == "__main__":
+	PID = os.getpid()
 	if os.name == 'nt': printlog('Warning! Correct work only on *NIX system!')
 
 	try:
@@ -95,7 +99,7 @@ if __name__ == "__main__":
 		printlog(crashtext('Isida is crashed! Incorrent launch!'))
 		raise
 
-	if os.path.isfile(pid_file) and os.name != 'nt':
+	if os.name != 'nt' and PID != 1 and os.path.isfile(pid_file):
 		try:
 			last_pid = int(readfile(pid_file))
 		except:
@@ -106,11 +110,14 @@ if __name__ == "__main__":
 		except Exception, SM:
 			if not str(SM).lower().count('no such process'): crash('Unknown exception!\n%s' % SM)
 
-	writefile(pid_file,str(os.getpid()))
+		writefile(pid_file,str(PID))
 
 	dirs = os.listdir('.')+os.listdir('../')
 
-	if '.git' in dirs:
+	if PID == 1:
+		USED_REPO = 'docker'
+		writefile(ver_file, unicode(DOCKER_VER_FORMAT % (hex(int(os.path.getctime('../')))[2:],id_append)).encode('utf-8'))
+	elif '.git' in dirs:
 		USED_REPO = 'git'
 		os.system('git describe --always > %s' % ver_file)
 		revno = str(readfile(ver_file)).replace('\n','').replace('\r','').replace('\t','').replace(' ','')
