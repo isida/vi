@@ -95,7 +95,7 @@ def logger(raw_in):
 	global CHAT_ID
 	if LOG_DEBUG:
 		pprint(json.dumps(raw_in, indent=2, separators=(',', ': ')), 'yellow')
-	if raw_in.has_key('callback_query'):
+	if 'callback_query' in raw_in:
 		RAW_IN = {'message': raw_in['callback_query'].get('message', {})}
 		RAW_IN['message']['text'] = '📄 %s' % raw_in['callback_query'].get('data', 'unknown_cmd')
 		raw_in = RAW_IN
@@ -117,9 +117,9 @@ def logger(raw_in):
 		TYPE = raw_in['message'].get('chat', {}).get('type', '')
 		if TYPE in ['private', '']:
 			_TYPE = 'chat'
-		elif raw_in['message'].has_key('left_chat_participant'):
+		elif 'left_chat_participant' in raw_in['message']:
 			_TYPE = 'left_chat_participant'
-		elif raw_in['message'].has_key('new_chat_participant'):
+		elif 'new_chat_participant' in raw_in['message']:
 			_TYPE = 'new_chat_participant'
 		else:
 			_TYPE = 'from'
@@ -145,14 +145,14 @@ def logger(raw_in):
 				TEXT = raw_in['message'].get('text', '').replace('\n', '<br />')
 				if not TEXT:
 					CAPTION = raw_in['message'].get('caption', '')
-					if raw_in['message'].has_key('sticker'):
+					if 'sticker' in raw_in['message']:
 						TEXT = '%s [Sticker]' % raw_in['message'].get('sticker',{}).get('emoji', '?')
-					elif raw_in['message'].has_key('document'):
+					elif 'document' in raw_in['message']:
 						if CAPTION:
 							TEXT = '📄 %s [Document]' % CAPTION
 						else:
 							TEXT = '📄 [Document]'
-					elif raw_in['message'].has_key('pinned_message'):
+					elif 'pinned_message' in raw_in['message']:
 						TEXT = '📌 <span class="pinned">%s</span>' % raw_in['message'].get('pinned_message',{}).get('text', '-')
 					else:
 						IMG = raw_in['message'].get('photo', '')
@@ -165,8 +165,8 @@ def logger(raw_in):
 				else:
 					TEXT = replace_items(TEXT)
 				data = '<span class="time">%s</span> <span class="user">%s</span> <span class="text">%s</span><br />\n' % (TIME, NAME, TEXT)
-			fp = file(LOG_FOLDER % FOLDER_RAW, 'a')
-			fp.write(data)
+			with open(LOG_FOLDER % FOLDER_RAW, 'a') as fp:
+				fp.write(data)
 			fp.close()
 			data_all = readfile(LOG_FOLDER % FOLDER_RAW)
 			chat_id = raw_in['message'].get('chat', {}).get('id', '')
