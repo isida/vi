@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 # --------------------------------------------------------------------------- #
@@ -37,7 +37,7 @@ def cmd_to_drink(raw_in, text):
 	drink_lday = ['последний', 'последний', 'последняя', 'последний', 'последняя', 'последняя', 'последнее']
 	date_file = DATA_FOLDER % 'date.txt'
 	if os.path.isfile(date_file):
-		ddate = readfile(date_file).decode('UTF')
+		ddate = readfile(date_file)
 		week1 = ''
 		week2 = ''
 		if not ddate:
@@ -87,41 +87,6 @@ def cmd_to_drink(raw_in, text):
 		msg = 'База не найдена.'
 	send_msg(raw_in, msg)
 
-def cmd_calend(raw_in, text):
-	msg, url, text = '', '', text.strip()
-	if not text:
-		url = 'http://www.calend.ru/day/%s-%s/' % tuple(time.localtime())[1:3]
-	elif re.match('\d+\.\d+$', text):
-		url = 'http://www.calend.ru/day/%s-%s/' % tuple(text.split('.')[::-1])
-	elif len(text) > 1:
-		url = 'http://www.calend.ru/search/?search_str=' + urllib.quote(text.encode('cp1251'))
-	if url:
-		data = html_encode(load_page(url))
-		t = get_tag(data,'title')
-		if t == u'Поиск':
-			hl = re.findall('<a  href="(/holidays(?:/\d*?)+?)" title=".+?">(.+?)</a>(?:.|\s)+?/>\s+?(\d+ .+?)\s', data)
-			if len(hl) == 1:
-				d = re.search('class="img_small" /></a></td>\s+?<td>\s+?(.+?\.)\s+?</td>', data, re.S).group(1)
-				d = unescape(re.sub('\s+', ' ', d.strip()))
-				msg += '📅 <a href="http://www.calend.ru%s">%s</a> (%s) - %s' % (hl[0][0], hl[0][1], hl[0][2], d)
-			elif hl:
-				d = '<b>%s</b>' % get_tag(data,'h1')
-				for a in hl:
-					msg = '%s:\n🔹%s' % (d, '\n🔹'.join(map(lambda x: '<a href="http://www.calend.ru%s">%s</a> (%s)' % x, hl)))
-		else:
-			d = '<b>%s</b>' % get_tag(data,'h1')
-			hl = re.findall('<a  href="(/holidays(?:/\d*?)+?)" title=".+?">(.+?)</a>', data)
-			if hl:
-				#print hl[0]   
-				msg = '%s:\n🔹%s' % (d, '\n🔹'.join(map(lambda x: '<a href="http://www.calend.ru%s">%s</a>' % x, hl)))
-                
-	else:
-		msg = 'What?'
-	if not msg:
-		msg = 'Holiday: %s not found.' % text
-	send_msg(raw_in, msg, custom={'disable_web_page_preview': 'true'})
-
-commands = [['drink', cmd_to_drink, False, 'all', 'Find holiday [name_holiday/date]'],
-			['calend', cmd_calend, False, 'all', 'Find holiday [name_holiday/date]']]
+commands = [['drink', cmd_to_drink, False, 'all', 'Find holiday [name_holiday/date]']]
 
 # The end is near!

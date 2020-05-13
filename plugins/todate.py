@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 # --------------------------------------------------------------------------- #
@@ -34,7 +34,7 @@ def cmd_todate(raw_in, text):
 		else:
 			year = time.localtime()[0]
 		try:
-			_ = time.mktime([year, month, day] + [0] * 6)
+			_ = time.mktime(tuple([year, month, day] + [0] * 6))
 			days_remain = (datetime.date(year, month, day) - datetime.date.today()).days
 			if days_remain > 0:
 				msg = 'To %02d.%02d.%04d remain %s day(s).' % (day, month, year, days_remain)
@@ -43,7 +43,8 @@ def cmd_todate(raw_in, text):
 			else:
 				msg = '%02d.%02d.%04d is now!' % (day, month, year)
 		except:
-			msg = 'Wrong date.'			
+			raise
+			msg = 'Wrong date.'
 	else:
 		msg = 'Need date.'
 	send_msg(raw_in, msg)

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 # --------------------------------------------------------------------------- #
@@ -31,17 +31,20 @@ def cmd_news(raw_in, text):
 			limit = 1
 	else:
 		limit = 1
+	if hasattr(ssl, '_create_unverified_context'):
+		ssl._create_default_https_context = ssl._create_unverified_context
 	feed = feedparser.parse('https://github.com/isida/vi/commits/master.atom')
 	result = []
 	for data in feed['entries'][:limit]:
 		link = data['links'][0]['href']
-		link_name = link.split('/')[-1][:7]	
+		link_name = link.split('/')[-1][:7]
 		msg  = '[%04d.%02d.%02d %02d:%02d:%02d]' % data['updated_parsed'][:6]
 		msg += ' ' + data['author']
 		msg += ' <a href="%s">%s</a>' % (link, link_name)
 		msg += '\n' + data['content'][0]['value']
 		result.append(msg)
 	msg = '\n\n'.join(result)
+	print(msg)
 	send_msg(raw_in, msg, custom = {'disable_web_page_preview': True})
 
 commands = [['news', cmd_news, False, 'all', 'Show latest bot\'s commit.']]

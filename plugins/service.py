@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 # --------------------------------------------------------------------------- #
@@ -31,7 +31,7 @@ def raw_bot_restart(raw_in, msg, status):
 
 def cmd_update(raw_in):
 	raw_bot_restart(raw_in, 'Let\'s update!', 'update')
-	
+
 def cmd_restart(raw_in):
 	raw_bot_restart(raw_in, 'Let\'s restart!', 'restart')
 

@@ -1,4 +1,4 @@
-﻿#!/usr/bin/python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 # --------------------------------------------------------------------------- #
@@ -25,11 +25,16 @@
 def cmd_yandex_currency(raw_in):
 	data = requests.get('https://yandex.ru').content
 	regexp = '''<span.*?>(.+?)</span'''
-	data = data.split('<span class="inline-stocks__value_inner">')
+	data = str(data).split('<span class="inline-stocks__value_inner">')
 	r = []
+	repl = [
+		['\\xe2\\x88\\x92', '-']
+	]
 	for t in data:
 		cur = t.split('<', 1)[0]
 		stat = re.findall(regexp, t)[0].split('<', 1)[0]
+		for rep in repl:
+			stat = stat.replace(rep[0], rep[1])
 		r.append([cur, stat])
 	r = r[-3:]
 	msg = '<b>Yandex rates</b><pre>'

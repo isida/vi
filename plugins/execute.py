@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 # --------------------------------------------------------------------------- #
@@ -25,12 +25,10 @@ calc_last_res = {}
 
 def cmd_execute(raw_in, text):
 	try:
-		msg = html_escape_soft(remove_sub_space(unicode(eval(text))))
-	except Exception, SM:
-		try:
-			SM = str(SM)
-		except:
-			SM = unicode(SM)
+		msg = html_escape_soft(remove_sub_space(str(eval(text))))
+	except:
+		SM = '\n'.join(str(t) for t in sys.exc_info())
+		SM = html_escape_soft(SM)
 		msg = 'I can\'t execute it! Error: %s' % SM
 	send_msg(raw_in, '<code>%s</code>' % msg)
 
@@ -39,7 +37,7 @@ def cmd_calc(raw_in, text):
 	ID = raw_in['message']['from']['id']
 	if 'ans' in text.lower() and calc_last_res.has_key(ID):
 		text = text.lower().replace('ans', calc_last_res[ID])
-	legal = string.digits + string.letters + '*/+-()=^!<>. '
+	legal = string.digits + string.ascii_letters + '*/+-()=^!<>. '
 	ppc = 1
 	if '**' in text or 'pow' in text or 'factorial' in text:
 		ppc = 0

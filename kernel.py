@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 # --------------------------------------------------------------------------- #
@@ -24,7 +24,7 @@
 import datetime
 import calendar
 import chardet
-import ConfigParser
+import configparser
 import feedparser
 import json
 import logging
@@ -32,18 +32,13 @@ import math
 import os
 import requests
 import time
-import urllib
-import urllib2
 import random
 import re
 import socket
 import string
+import ssl
 import sys
 import threading
-
-# Reload sys for apply UTF-8 encoding
-reload(sys)
-sys.setdefaultencoding('UTF8')
 
 # Threads with `kill` function
 class KThread(threading.Thread):
@@ -86,16 +81,13 @@ def thr(func, param, name):
 		tmp_th.start()
 	except SystemExit:
 		pass
-	except Exception, MSG:
-		try:
-			MSG = str(MSG)
-		except:
-			MSG = unicode(MSG)
+	except:
+		MSG = '\n'.join(str(t) for t in sys.exc_info())
 		if 'thread' in MSG.lower():
 			THREAD_ERROR_COUNT += 1
 		else:
 			lt = datetime.datetime.now()
-			logging.exception(' [%s] %s' % (timeadd(lt), unicode(func)))
+			logging.exception(' [%s] %s' % (timeadd(lt), str(func)))
 		try:
 			tmp_th.kill()
 		except:
@@ -111,81 +103,7 @@ def log_execute(proc, params):
 		pass
 	except:
 		lt = datetime.datetime.now()
-		logging.exception(' [%s] %s' % (timeadd(lt), unicode(proc)))
-
-# Decode from IDNA
-def deidna(text):
-	def repl(t):
-		return t.group().lower().decode('idna')
-	return re.sub(r'(xn--[-0-9a-z_]*)', repl, text, flags=re.S|re.I|re.U)
-
-# Encode to IDNA
-def enidna(text):
-	idn = re.findall(u'http[s]?://([-0-9a-zа-я._]*)', text, flags=re.S|re.I|re.U)
-	if idn:
-		text = text.replace(idn[0], idn[0].lower().encode('idna'))
-	return text.encode('utf-8')
-
-# RAW-Encode to IDNA
-def enidna_raw(text):
-	def repl(t):
-		return t.group().lower().encode('idna')
-	return re.sub(u'([а-я][-0-9а-я_]*)', repl, text, flags=re.S|re.I|re.U)
-
-# Detect HTML encoding and encode it
-def html_encode(body):
-	encidx = re.findall('encoding=["\'&]*(.*?)["\'& ]{1}', body[:1024])
-	if encidx:
-		enc = encidx[0]
-	else:
-		encidx = re.findall('charset=["\'&]*(.*?)["\'& ]{1}', body[:1024])
-		if encidx: enc = encidx[0]
-		else: enc = chardet.detect(body)['encoding']
-	if body == None:
-		body = ''
-	if enc == None or enc == '' or enc.lower() == 'unicode':
-		enc = 'utf-8'
-	if enc == 'ISO-8859-2':
-		tx, splitter = '', '|'
-		while splitter in body:
-			splitter += '|'
-		tbody = body.replace('</', '<'+splitter+'/').split(splitter)
-		cntr = 0
-		for tmp in tbody:
-			try:
-				enc = chardet.detect(tmp)['encoding']
-				if enc == None or enc == '' or enc.lower() == 'unicode':
-					enc = 'utf-8'
-				tx += unicode(tmp, enc)
-			except:
-				ttext = ''
-				for tmp2 in tmp:
-					if (tmp2<='~'):
-						ttext += tmp2
-					else:
-						ttext += '?'
-				tx += ttext
-			cntr += 1
-		return tx
-	else:
-		try:
-			return smart_encode(body, enc)
-		except:
-			return 'Encoding error!'
-
-# Encode HTML with mixed encoding
-def smart_encode(text, enc):
-	tx = ''
-	splitter = '|'
-	while splitter in text:
-		splitter += '|'
-	ttext = text.replace('</', '<%s/' % splitter).split(splitter)
-	for tmp in ttext:
-		try:
-			tx += unicode(tmp, enc)
-		except:
-			pass
-	return tx
+		logging.exception(' [%s] %s' % (timeadd(lt), str(proc)))
 
 # Soft escape html
 def html_escape_soft(text):
@@ -195,39 +113,16 @@ def html_escape_soft(text):
 
 # Read file
 def readfile(filename):
-	fp = file(filename)
-	data = fp.read()
+	with open(filename) as fp:
+		data = fp.read()
 	fp.close()
 	return data
 
 # Write file
 def writefile(filename, data):
-	fp = file(filename, 'w')
-	fp.write(data)
+	with open(filename, 'w') as fp:
+		fp.write(data)
 	fp.close()
-
-# Get file or get default data
-def getFile(filename, default):
-	if os.path.isfile(filename):
-		try:
-			filebody = eval(readfile(filename))
-		except:
-			if os.path.isfile(back_file % filename.split('/')[-1]):
-				while True:
-					try:
-						filebody = eval(readfile(back_file % \
-										filename.split('/')[-1]))
-						break
-					except:
-						pass
-			else:
-				filebody = default
-				writefile(filename, str(default))
-	else:
-		filebody = default
-		writefile(filename, str(default))
-	writefile(back_file % filename.split('/')[-1], str(filebody))
-	return filebody
 
 def replace_ltgt(text):
 	return remove_replace_ltgt(text, ' ')
@@ -312,7 +207,7 @@ def unhtml_hard(page):
 # Get Bot's version
 def get_bot_version():
 	if os.path.isfile(ver_file):
-		bvers = readfile(ver_file).decode('utf-8').replace('\n', '').\
+		bvers = readfile(ver_file).replace('\n', '').\
 					replace('\r', '').replace('\t', '').replace(' ', '')
 		bV = '%s.%s-%s' % (botVersionDef, bvers, base_type)
 	else:
@@ -349,7 +244,7 @@ def get_os_version():
 
 # Get color by name on Linux
 def get_color(c):
-	color = os.environ.has_key('TERM')
+	color = 'TERM' in os.environ
 	colors = {'clear':'[0m', 'blue':'[34m', 'red':'[31m', 'magenta':'[35m',
 			  'green':'[32m', 'cyan':'[36m', 'brown':'[33m', 'light_gray':'[37m',
 			  'black':'[30m', 'bright_blue':'[34;1m', 'bright_red':'[31;1m',
@@ -402,30 +297,30 @@ def pprint(*text):
 		if is_win32 and win_color:
 			ctypes.windll.Kernel32.SetConsoleTextAttribute(win_console_color, \
 				get_color_win32('clear'))
-			print zz.split(' ', 1)[0],
+			print(zz.split(' ', 1)[0],)
 			ctypes.windll.Kernel32.SetConsoleTextAttribute(win_console_color, \
 				win_color)
 			try:
-				print zz.split(' ', 1)[1]
+				print(zz.split(' ', 1)[1])
 			except:
-				print parser(zz.split(' ', 1)[1])
+				print(parser(zz.split(' ', 1)[1]))
 			ctypes.windll.Kernel32.SetConsoleTextAttribute(win_console_color, \
 				get_color_win32('clear'))
 		else:
 			try:
-				print zz
+				print(zz)
 			except:
-				print parser(zz)
+				print(parser(zz))
 	if DEBUG_LOG:
 		fname = SYSLOG_FOLDER % datetime.datetime.strftime(lt, "%Y%m%d.txt")
 		fbody = '%s|%s\n' % (onlytimeadd(lt), text.replace('\n', '\r'))
-		fl = open(fname, 'a')
-		fl.write(fbody.encode('utf-8'))
+		with open(fname, 'a') as fl:
+			fl.write(fbody)
 		fl.close()
 
 # Error message
 def Error(text):
-	print 'Error! %s' % text
+	print('Error! %s' % text)
 	sys.exit()
 
 # Get integer value from config
@@ -451,7 +346,7 @@ def get_config_bin(_config, _section, _name):
 
 # Replace non-ascii and TAB, CR, LF
 def remove_sub_space(t):
-	return ''.join([['?', l][l>=' ' or l in '\t\r\n'] for l in unicode(t)])
+	return ''.join([['?', l][l>=' ' or l in '\t\r\n'] for l in str(t)])
 
 # Send request
 def send_raw(raw_in, method, dt, fl={}):
@@ -511,33 +406,28 @@ def send_document(raw_in, document, custom={}):
 # Open web page
 def get_opener(page_name, parameters=None):
 	socket.setdefaulttimeout(www_get_timeout)
+	headers = {
+		'User-Agent': USER_AGENT,
+		'Cache-Control': 'no-cache'
+	}
 	try:
-		proxy_support = urllib2.ProxyHandler({'http' : \
-			'http://%(user)s:%(password)s@%(host)s:%(port)d' % http_proxy})
-		opener = urllib2.build_opener(proxy_support, urllib2.HTTPHandler)
-		urllib2.install_opener(opener)
-	except:
-		opener = urllib2.build_opener(urllib2.HTTPHandler)
-	opener.addheaders = [('User-agent', user_agent)]
-	if parameters:
-		page_name += urllib.urlencode(parameters)
-	try:
-		data = opener.open(page_name)
+		data = requests.get(page_name,
+							data = parameters,
+							proxies = WEB_PROXIES,
+							headers = headers).content
 		result = True
-	except Exception, MSG:
-		try:
-			MSG = str(MSG)
-		except:
-			MSG = unicode(MSG)
+	except:
+		MSG = '\n'.join(str(t) for t in sys.exc_info())
 		data = 'Error! %s' % MSG.replace('>', '').replace('<', '').capitalize()
 		result = False
+	print(data)
 	return data, result
 
 # Load page with limited size
 def load_page_size(page_name, page_size, parameters=None):
 	data, result = get_opener(page_name, parameters)
 	if result:
-		return data.read(page_size)
+		return data[:page_size].decode()
 	else:
 		return data
 
@@ -545,7 +435,7 @@ def load_page_size(page_name, page_size, parameters=None):
 def load_page(page_name, parameters=None):
 	data, result = get_opener(page_name, parameters)
 	if result:
-		return data.read(size_overflow)
+		return data[:size_overflow].decode()
 	else:
 		return data
 
@@ -564,6 +454,11 @@ def check_updates():
 	except requests.exceptions.ConnectionError:
 		pprint('*** Connection error on getUpdates. Waiting %s seconds.' % MAX_TIMEOUT, 'red')
 		return False
+	#except requests.exceptions.InvalidSchema:
+	#	time.sleep(MAX_TIMEOUT)
+	#	raise
+	#	pprint('*** Connection error on getUpdates. Waiting %s seconds.' % MAX_TIMEOUT, 'red')
+	#	return False
 
 	if not request.status_code == 200:
 		pprint('*** Error code on getUpdates: %s' % request.status_code, 'red')
@@ -581,9 +476,9 @@ def check_updates():
 			OFFSET = msg_in['update_id']
 			return True
 		try:
-			if msg_in.has_key('message'):
+			if 'message' in msg_in:
 				CHAT_ID = msg_in['message']['chat'].get('id', 0)
-			elif msg_in.has_key('callback_query'):
+			elif 'callback_query' in msg_in:
 				CHAT_ID = msg_in['callback_query']['message']['chat'].get('id', 0)
 			else:
 				CHAT_ID = 0
@@ -594,10 +489,10 @@ def check_updates():
 				logger(msg_in)
 			except:
 				pprint(json.dumps(msg_in, indent=2, separators=(',', ': ')), 'red')
-		if msg_in.has_key('edited_message'):
+		if 'edited_message' in msg_in:
 			msg_in['message'] = msg_in['edited_message']
 			pprint('*** Edited message!', 'yellow')
-		elif msg_in.has_key('callback_query'):
+		elif 'callback_query' in msg_in:
 			msg_in['message'] = msg_in['callback_query']['message']
 			msg_in['message']['text'] = msg_in['callback_query']['data']
 			pprint('*** Callback query!', 'yellow')
@@ -605,7 +500,7 @@ def check_updates():
 		#send_msg(msg_in, '<i>Edited messages not supported now!</i>')
 
 		if 'message' not in msg_in or 'text' not in msg_in['message']:
-			if msg_in['message'].has_key('new_chat_participant'):
+			if 'new_chat_participant' in msg_in['message']:
 				pprint('New participant|%s' % '|'.join([str(t) for t in [\
 					msg_in['message']['chat'].get('all_members_are_administrators', ''), \
 					msg_in['message']['chat'].get('type', ''), \
@@ -616,7 +511,7 @@ def check_updates():
 					msg_in['message']['new_chat_participant'].get('first_name', ''), \
 					msg_in['message']['new_chat_participant'].get('last_name', '') ]]), 'cyan')
 				break
-			elif msg_in['message'].has_key('left_chat_participant'):
+			elif 'left_chat_participant' in msg_in['message']:
 				pprint('Left participant|%s' % '|'.join([str(t) for t in [\
 					msg_in['message']['chat'].get('all_members_are_administrators', ''), \
 					msg_in['message']['chat'].get('type', ''), \
@@ -687,12 +582,12 @@ def check_updates():
 
 		if not IS_COMMAND:
 			if (msg_in['message']['text'].lower().startswith('@%s ' % BOT_NAME) and \
-					msg_in['message'].has_key('chat') and \
-					msg_in['message']['chat'].has_key('type') and \
+					'chat' in msg_in['message'] and \
+					'type' in msg_in['message']['chat'] and \
 					msg_in['message']['chat'].get('type', '') in ['group', 'supergroup']) or \
-					(msg_in['message'].has_key('reply_to_message') and \
-					msg_in['message']['reply_to_message'].has_key('from') and \
-					msg_in['message']['reply_to_message']['from'].has_key('username') and \
+					('reply_to_message' in msg_in['message'] and \
+					'from' in msg_in['message']['reply_to_message'] and \
+					'username' in msg_in['message']['reply_to_message']['from'] and \
 					msg_in['message']['reply_to_message']['from'].get('username', '').lower() == BOT_NAME):
 				text = msg_in['message']['text']
 				if text.lower().startswith('@%s ' % BOT_NAME):
@@ -702,8 +597,8 @@ def check_updates():
 				pprint('<<< Chat: %s' % msg, 'bright_green')
 				#time.sleep(len(msg) / 3.0 + random.randint(0, 3))
 				send_msg(msg_in, msg)
-			elif (msg_in['message'].has_key('chat') and \
-					msg_in['message']['chat'].has_key('type') and \
+			elif ('chat' in msg_in['message'] and \
+					'type' in msg_in['message']['chat'] and \
 					msg_in['message']['chat'].get('type', '') == 'private'):
 				text = msg_in['message'].get('text').strip()
 				pprint('>>> Chat: %s' % text, 'green')
@@ -730,15 +625,14 @@ def shell_execute(cmd):
 	else:
 		tmp_file = '%s.tmp' % int(time.time())
 		try:
-			error_answ = os.system('%s > %s 2>&1' % (cmd.encode('utf-8'), tmp_file))
+			error_answ = os.system('%s > %s 2>&1' % (cmd, tmp_file))
 			if not error_answ:
 				try:
 					body = html_escape_soft(readfile(tmp_file))
 				except:
 					body = '⚠️ Command execution error.'
 				if len(body):
-					enc = chardet.detect(body)['encoding']
-					result = remove_sub_space(unicode(body, enc))
+					result = remove_sub_space(str(body))
 				else:
 					result = 'ok'
 			else:
@@ -747,11 +641,8 @@ def shell_execute(cmd):
 					result += '\n' + html_escape_soft(readfile(tmp_file))
 				except:
 					pass
-		except Exception, MSG:
-			try:
-				MSG = str(MSG)
-			except:
-				MSG = unicode(MSG)
+		except:
+			MSG = '\n'.join(str(t) for t in sys.exc_info())
 			result = '⚠️ I can\'t execute it! Error: %s' % MSG
 		try:
 			os.remove(tmp_file)
@@ -839,16 +730,13 @@ CONFIG_MAIN        = 'main'                           # Main section name in con
 CONFIG_DEBUG       = 'debug'                          # Debug section name in config
 CONFIG_OWNER       = 'owner'                          # Owner section name in config
 CONFIG_LISTS       = 'lists'                          # White/black lists section name in config
-CONFIG_PROXY       = 'proxy'                          # Proxy section name in config
+CONFIG_SOCKS_PROXY = 'socks_proxy'                    # Socks proxy section name in config
+CONFIG_WEB         = 'web'                            # Web section name in config
 botName            = 'iSida'                          # Bot's name
-botVersionDef      = '6.1'                            # Bot's version
+botVersionDef      = '6.2'                            # Bot's version
 base_type          = 'NoDB'                           # Bot's base type
 www_get_timeout    = 15                               # Timeout for web requests
 size_overflow      = 262144                           # Web page limit in bytes
-#http_proxy         = {'host':'127.0.0.1', 'port':3128, 'user':None, 'password':None}
-#                                                     # Proxy settings
-user_agent         = 'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'
-#                                                     # User agent for web requests
 TIMEOUT            = 1                                # Timeout between request updates
 MAX_TIMEOUT        = 15                               # Maximal timeout after request error
 CYCLES             = 0                                # Work cycles
@@ -880,7 +768,7 @@ pprint('*** Init enviroment succed', 'white')
 pprint('*** Loading config', 'white')
 if not os.path.exists(CONFIG_FILE):
 	Error('Config file not found: %s' % CONFIG_FILE)
-CONFIG = ConfigParser.ConfigParser()
+CONFIG = configparser.ConfigParser()
 CONFIG.read(CONFIG_FILE)
 SECTIONS = CONFIG.sections()
 if CONFIG_MAIN not in SECTIONS:
@@ -891,32 +779,50 @@ if CONFIG_OWNER not in SECTIONS:
 	Error('Owner options not found in %s' % CONFIG_FILE)
 if CONFIG_LISTS not in SECTIONS:
 	pprint('!!! White/black lists options not found in %s' % CONFIG_FILE, 'red')
-if CONFIG_PROXY not in SECTIONS:
-	pprint('Proxy settings not found in %s' % CONFIG_FILE, 'white')
+if CONFIG_SOCKS_PROXY not in SECTIONS:
+	pprint('Socks proxy settings not found in %s' % CONFIG_FILE, 'white')
 	PROXIES = {}
 else:
-	pprint('Read proxy settings...', 'white')
+	pprint('Read socks proxy settings...', 'white')
 	proxy = {}
-	proxy['HOST'] = CONFIG.get(CONFIG_PROXY, 'host')
-	proxy['PORT'] = CONFIG.get(CONFIG_PROXY, 'port')
+	proxy['HOST'] = CONFIG.get(CONFIG_SOCKS_PROXY, 'host')
+	proxy['PORT'] = CONFIG.get(CONFIG_SOCKS_PROXY, 'port')
 	proxy_string = '%(HOST)s:%(PORT)s'
-	try:
-		itm = CONFIG.get(CONFIG_PROXY, 'user')
-		proxy['USER'] = itm
-	except:
-		pass
-	try:
-		itm = CONFIG.get(CONFIG_PROXY, 'pass')
-		proxy['PASS'] = itm
-	except:
-		pass
-	if proxy.has_key('USER') and proxy.has_key('PASS'):
-		proxy_string = '%(USER)s:%(PASS)s@' + proxy_string
-	elif proxy.has_key('USER') and not proxy.has_key('PASS'):
-		proxy_string = '%(USER)s@' + proxy_string
+	if CONFIG.has_option(CONFIG_SOCKS_PROXY, 'user'):
+		proxy['USER'] = CONFIG.get(CONFIG_SOCKS_PROXY, 'user')
+		if CONFIG.has_option(CONFIG_SOCKS_PROXY, 'pass'):
+			proxy['PASS'] = ':%s' % CONFIG.get(CONFIG_SOCKS_PROXY, 'pass')
+		else:
+			proxy['PASS'] = ''
+		proxy_string = '%(USER)s%(PASS)s@' + proxy_string
 	proxy_string = 'socks5://' + proxy_string
 	PROXIES = {'http':  proxy_string % proxy,
 			   'https': proxy_string % proxy}
+
+WEB_PROXIES = {}
+USER_AGENT = ''
+
+if CONFIG_WEB not in SECTIONS:
+	pprint('Web settings not found in %s' % CONFIG_FILE, 'white')
+else:
+	if CONFIG.has_option(CONFIG_WEB, 'proxy_host') \
+		and CONFIG.has_option(CONFIG_WEB, 'proxy_port'):
+		pprint('Read web proxy settings...', 'white')
+		proxy = {}
+		proxy['HOST'] = CONFIG.get(CONFIG_WEB, 'proxy_host')
+		proxy['PORT'] = CONFIG.get(CONFIG_WEB, 'proxy_port')
+		proxy_string = '%(HOST)s:%(PORT)s'
+		if CONFIG.has_option(CONFIG_WEB, 'proxy_user'):
+			proxy['USER'] = CONFIG.get(CONFIG_WEB, 'proxy_user')
+			if CONFIG.has_option(CONFIG_WEB, 'proxy_pass'):
+				proxy['PASS'] = CONFIG.get(CONFIG_WEB, 'proxy_pass')
+			else:
+				proxy['PASS'] = ''
+			proxy_string = '%(USER)s%(PASS)s@' + proxy_string
+			WEB_PROXIES = {'http':  proxy_string % proxy,
+					'https': proxy_string % proxy}
+	if CONFIG.has_option(CONFIG_WEB, 'user_agent'):
+		USER_AGENT = CONFIG.get(CONFIG_WEB, 'user_agent')
 
 CONFIG_API_TOKEN  = CONFIG.get(CONFIG_MAIN, 'token')
 BOT_NAME          = CONFIG.get(CONFIG_MAIN, 'bot_name').lower()
@@ -937,7 +843,7 @@ COMMANDS = []
 for plugin in plug_list:
 	commands = []
 	pprint('Append plugin: %s' % plugin, 'cyan')
-	execfile(PLUGIN_FOLDER % plugin)
+	exec(open(PLUGIN_FOLDER % plugin).read())
 	if commands:
 		for tmp in commands:
 			if len(tmp) == 5:
@@ -962,6 +868,7 @@ if mode:
 		pass
 
 # --- Main cycle ------------------------------------------------------------- #
+
 while not GAME_OVER:
 	try:
 		if not GAME_OVER:
@@ -975,11 +882,8 @@ while not GAME_OVER:
 		pprint('Shutdown by CTRL+C...', 'bright_red')
 		time.sleep(1)
 		sys.exit('exit')
-	except Exception, MSG:
-		try:
-			MSG = str(MSG)
-		except:
-			MSG = unicode(MSG)
+	except:
+		MSG = '\n'.join(str(t) for t in sys.exc_info())
 		pprint('*** Error *** %s ***' % MSG, 'red')
 		logging.exception(' [%s] ' % timeadd(datetime.datetime.now()))
 		if HALT_ON_EXCEPTION:

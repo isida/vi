@@ -4,6 +4,7 @@
 ======
 
 Required:
+* configparser
 * chardet
 * feedparser
 * requests

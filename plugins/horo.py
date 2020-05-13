@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 # --------------------------------------------------------------------------- #
@@ -40,12 +40,12 @@ def cmd_horoscope(raw_in, text):
 	if param:
 		if param == 'list':
 			msg = '\n'.join(['%s /horo_%s' % \
-                (horoemo[i], t.capitalize()) for i, t in enumerate(horodb)])
+				(horoemo[i], t.capitalize()) for i, t in enumerate(horodb)])
 		elif param == 'date':
 			msg = 'List of dates:\n%s' % '\n'.join(['%s … %s %s' % \
-                (horo_dates[i], horoemo[i], t.capitalize()) for i, t in enumerate(horodb)])
+				(horo_dates[i], horoemo[i], t.capitalize()) for i, t in enumerate(horodb)])
 		elif param in horodb:
-			body = html_encode(load_page('http://horo.mail.ru/prediction/%s/today' % param))
+			body = load_page('http://horo.mail.ru/prediction/%s/today' % param)
 			try:
 				msg = '%s %s (%s)\n%s' % (horoemo[horodb.index(param)], \
 					param.capitalize(), \

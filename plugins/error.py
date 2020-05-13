@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 # --------------------------------------------------------------------------- #
@@ -29,7 +29,7 @@ def cmd_show_error(raw_in, text):
 	except:
 		cmd = 1
 	if os.path.isfile(LOG_FILENAME) and text.lower().strip() != 'clear':
-		log = readfile(LOG_FILENAME).decode('UTF')
+		log = readfile(LOG_FILENAME)
 		log = log.split('ERROR:')
 		log_len = len(log)
 		if cmd > log_len:

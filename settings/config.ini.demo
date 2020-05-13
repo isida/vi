@@ -21,11 +21,19 @@ botinfo: white 3456789 98765432
 ; Install requests with socks support via:
 ; pip install -U requests[socks]
 ; Then uncomment settings bellow:
-; [proxy]
+; [socks_proxy]
 ; user: proxy_username_if_needed
 ; pass: proxy_password_if_nedded
 ; host: proxy_host
 ; port: proxy_port
+
+;--- Web settings
+[web]
+;proxy_user: proxy_username_if_needed
+;proxy_pass: proxy_password_if_nedded
+;proxy_host: proxy_host
+;proxy_port: proxy_port
+user_agent: Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36
 
 [log]
 url: http://your-mega-site.com/logs

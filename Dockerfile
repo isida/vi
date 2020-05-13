@@ -1,8 +1,8 @@
-FROM python:2-alpine
+FROM python:3-alpine
 
 COPY . /isida
 WORKDIR /isida
 
-RUN pip2 install -r requirements.txt
+RUN pip3 install -r requirements.txt
 
-CMD ["python2", "./isida.py"]
+CMD ["python3", "./isida.py"]

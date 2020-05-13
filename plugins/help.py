@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 # --------------------------------------------------------------------------- #
@@ -23,7 +23,7 @@
 
 def get_su(t):
 	return ['', '⚠️'][t]
-	
+
 def cmd_help(raw_in, text):
 	IS_OWNER = raw_in['message']['from'].get('id', '') == OWNER_ID
 	text = text.lower().strip()
@@ -72,7 +72,7 @@ def cmd_commands(raw_in):
 		CHAT_ID = 0
 	rez = []
 	for cmd in COMMANDS:
-		if CHAT_ID not in cmd[5].get('black', []) and not (cmd[5].has_key('white') and CHAT_ID not in cmd[5].get('white', [])):
+		if CHAT_ID not in cmd[5].get('black', []) and not ('white' in cmd[5] and CHAT_ID not in cmd[5].get('white', [])):
 			if IS_OWNER:
 				rez.append((cmd[0], get_su(cmd[2])))
 			elif not cmd[2]:

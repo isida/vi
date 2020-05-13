@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 # --------------------------------------------------------------------------- #
@@ -47,23 +47,23 @@ RAW_IN            = ''
 mode              = ''
 
 def readfile(filename):
-	fp = file(filename)
-	data = fp.read()
+	with open(filename) as fp:
+		data = fp.read()
 	fp.close()
 	return data
 
 def writefile(filename, data):
-	fp = file(filename, 'w')
-	fp.write(data)
+	with open(filename, 'w') as fp:
+		fp.write(data)
 	fp.close()
 
 def printlog(text):
-	print text
+	print(text)
 	lt = tuple(time.localtime())
 	fname = slog_folder % 'crash_%04d%02d%02d.txt' % lt[0:3]
 	fbody = '%s|%s\n' % ('%02d%02d%02d' % lt[3:6],text)
-	fl = open(fname, 'a')
-	fl.write(fbody.encode('utf-8'))
+	with open(fname, 'a') as fl:
+		fl.write(fbody)
 	fl.close()
 
 def crashtext(t):
@@ -81,9 +81,9 @@ def update(USED_REPO):
 		os.system('git describe --always > %s' % ver_file)
 		revno = str(readfile(ver_file)).replace('\n','').replace('\r','').replace('\t','').replace(' ','')
 		os.system('git log --pretty=format:'' > %s' % ver_file)
-		writefile(ver_file, unicode(GIT_VER_FORMAT % (os.path.getsize(ver_file)+1,revno,id_append)).encode('utf-8'))
+		writefile(ver_file, str(GIT_VER_FORMAT % (os.path.getsize(ver_file)+1,revno,id_append)))
 		os.system('git log -1 > %s' % updatelog_file)
-		writefile(updatelog_file, unicode(readfile(updatelog_file)).replace('\n\n','\n').replace('\r','').replace('\t',''))
+		writefile(updatelog_file, str(readfile(updatelog_file)).replace('\n\n','\n').replace('\r','').replace('\t',''))
 	elif USED_REPO == 'docker':
 		os.system('echo Update not available inside docker image! > %s' % updatelog_file)
 	else:
@@ -107,8 +107,10 @@ if __name__ == "__main__":
 		try:
 			os.getsid(last_pid)
 			crash('Multilaunch detected! Kill pid %s before launch bot again!' % last_pid)
-		except Exception, SM:
-			if not str(SM).lower().count('no such process'): crash('Unknown exception!\n%s' % SM)
+		except:
+			SM = '\n'.join(str(t) for t in sys.exc_info())
+			if 'ProcessLookupError' not in SM:
+				crash('Unknown exception!\n%s' % SM)
 
 		writefile(pid_file,str(PID))
 
@@ -116,23 +118,24 @@ if __name__ == "__main__":
 
 	if PID == 1:
 		USED_REPO = 'docker'
-		writefile(ver_file, unicode(DOCKER_VER_FORMAT % (hex(int(os.path.getctime('../')))[2:],id_append)).encode('utf-8'))
+		writefile(ver_file, DOCKER_VER_FORMAT % (hex(int(os.path.getctime('../')))[2:], id_append))
 	elif '.git' in dirs:
 		USED_REPO = 'git'
 		os.system('git describe --always > %s' % ver_file)
 		revno = str(readfile(ver_file)).replace('\n','').replace('\r','').replace('\t','').replace(' ','')
 		os.system('git log --pretty=format:'' > %s' % ver_file)
-		writefile(ver_file, unicode(GIT_VER_FORMAT % (os.path.getsize(ver_file)+1,revno,id_append)).encode('utf-8'))
+		writefile(ver_file, GIT_VER_FORMAT % (os.path.getsize(ver_file)+1,revno, id_append))
 	else:
 		USED_REPO = 'unknown'
-		writefile(ver_file, unicode(TIME_VER_FORMAT % (hex(int(os.path.getctime('../')))[2:],id_append)).encode('utf-8'))
+		writefile(ver_file, TIME_VER_FORMAT % (hex(int(os.path.getctime('../')))[2:], id_append))
 
 	while True:
 		try:
-			execfile('kernel.py')
+			print(mode)
+			exec(open('kernel.py').read())
 		except KeyboardInterrupt:
 			break
-		except SystemExit, mode:
+		except SystemExit as MODE:
 			for t in threading.enumerate():
 				try:
 					if str(t).startswith('<KThread'):
@@ -141,7 +144,7 @@ if __name__ == "__main__":
 						t.cancel()
 				except:
 					pass
-			mode = str(mode)
+			mode = str(MODE)
 			if mode == 'update':
 				update(USED_REPO)
 			elif mode == 'exit':
@@ -151,11 +154,8 @@ if __name__ == "__main__":
 			else:
 				printlog('Unknown exit type!')
 				break
-		except Exception, SM:
-			try:
-				SM = str(SM)
-			except:
-				SM = unicode(SM)
+		except:
+			SM = '\n'.join(str(t) for t in sys.exc_info())
 			printlog(crashtext('iSida is crashed! It\'s imposible, but You do it!'))
 			printlog('%s\n' % SM)
 			traceback.print_exc()

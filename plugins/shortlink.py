@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 # --------------------------------------------------------------------------- #
@@ -28,7 +28,8 @@ SHORT_QR = 'http://chart.apis.google.com/chart?cht=qr&chs=350x350&chld=M|2&chl=%
 def shorter_raw(raw_in, text, url):
 	text = text.strip()
 	if text:
-		msg = load_page(url % enidna(text).decode('utf-8'))
+		msg = load_page(url % text)
+		print(msg)
 	else:
 		msg = 'What?'
 	send_msg(raw_in, msg)

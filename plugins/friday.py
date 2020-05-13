@@ -1,4 +1,4 @@
-﻿#!/usr/bin/python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 # --------------------------------------------------------------------------- #
@@ -25,7 +25,7 @@ def cmd_friday(raw_in):
     day = datetime.datetime.isoweekday(datetime.datetime.now())
     date_file = DATA_FOLDER % 'friday.txt'
     if os.path.isfile(date_file):
-        frases = readfile(date_file).decode('UTF')
+        frases = readfile(date_file)
         frases = map(lambda x: x.split(' || '), frases.split('\n'))
         week = [u'понедельник', u'вторник', u'среда', u'четверг', u'пятница', u'суббота', u'воскресенье']
         if not frases:

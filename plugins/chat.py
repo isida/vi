@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 # --------------------------------------------------------------------------- #
@@ -43,18 +43,18 @@ for t in llist:
 	ANSWER_FILE = chat_folder + 'answer.txt'
 	PHRASES_FILE = chat_folder + 'phrases.txt'
 
-	list_of_answers[cur_lang] = readfile(ANSWER_FILE).decode('utf-8').split('\n')
-	list_of_empty[cur_lang] = readfile(EMPTY_FILE).decode('utf-8').split('\n')
+	list_of_answers[cur_lang] = readfile(ANSWER_FILE).split('\n')
+	list_of_empty[cur_lang] = readfile(EMPTY_FILE).split('\n')
 	list_of_phrases_with_highlight[cur_lang] = []
 	list_of_phrases_no_highlight[cur_lang] = []
 	for phrase in readfile(PHRASES_FILE).split('\n'):
 		if 'NICK' in phrase:
-			list_of_phrases_with_highlight[cur_lang].append(phrase.decode('utf-8'))
+			list_of_phrases_with_highlight[cur_lang].append(phrase)
 		else:
-			list_of_phrases_no_highlight[cur_lang].append(phrase.decode('utf-8'))
+			list_of_phrases_no_highlight[cur_lang].append(phrase)
 
 	dict_of_mind[cur_lang] = {}
-	for p in readfile(MIND_FILE).decode('utf-8').split('\n'):
+	for p in readfile(MIND_FILE).split('\n'):
 		if '||' in p:
 			tmp1, tmp2 = p.strip().split('||')
 			dict_of_mind[cur_lang][tmp1] = tmp2.split('|')
@@ -92,7 +92,7 @@ def rating(s, text, ID):
 def getAnswer(raw_in, text):
 	global ANSW_PREV
 	ID = raw_in['message']['from']['id']
-	text = text.strip()	
+	text = text.strip()
 	answ = getSmartAnswer(ID, text)
 	ANSW_PREV[ID] = text.upper()
 	return answ

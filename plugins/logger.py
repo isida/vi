@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 # --------------------------------------------------------------------------- #
@@ -87,10 +87,10 @@ def logger_self(msg):
 def replace_items_regexp(t):
 	t = t.group().strip(' @')
 	return '<a href="https://t.me/%s" target="_blank">@%s</a>' % (t, t)
-	
+
 def replace_items(text):
 	return re.sub('@[\w]+', replace_items_regexp, text)
-	
+
 def logger(raw_in):
 	global CHAT_ID
 	if LOG_DEBUG:
