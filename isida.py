@@ -131,7 +131,6 @@ if __name__ == "__main__":
 
 	while True:
 		try:
-			print(mode)
 			exec(open('kernel.py').read())
 		except KeyboardInterrupt:
 			break
