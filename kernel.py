@@ -40,7 +40,7 @@ import ssl
 import sys
 import threading
 
-# Threads with `kill` function
+# Threads with `kill` feature
 class KThread(threading.Thread):
 	def __init__(self, *args, **keywords):
 		threading.Thread.__init__(self, *args, **keywords)
@@ -76,8 +76,8 @@ def thr(func, param, name):
 	global THREAD_COUNT, THREAD_ERROR_COUNT, sema
 	THREAD_COUNT += 1
 	try:
-		tmp_th = KThread(group=None, target=log_execute, name='%s_%s' % \
-						(THREAD_COUNT, name), args=(func, param))
+		tmp_th = KThread(group=None, target=log_execute,
+			name='%s_%s' % (THREAD_COUNT, name), args=(func, param))
 		tmp_th.start()
 	except SystemExit:
 		pass
@@ -123,86 +123,6 @@ def writefile(filename, data):
 	with open(filename, 'w') as fp:
 		fp.write(data)
 	fp.close()
-
-def replace_ltgt(text):
-	return remove_replace_ltgt(text, ' ')
-
-def remove_replace_ltgt(text, item):
-	T = re.findall('<.*?>', text, re.S)
-	for tmp in T:
-		text = text.replace(tmp, item, 1)
-	return text
-
-def rss_replace(ms):
-	for tmp in lmass:
-		ms = ms.replace(tmp[1], tmp[0])
-	return unescape(esc_min(ms))
-
-def esc_min(ms):
-	for tmp in rmass:
-		ms = ms.replace(tmp[1], tmp[0])
-	return ms
-
-def unescape(text):
-	def fixup(m):
-		text = m.group(0)
-		if text[:2] == '&#':
-			try:
-				if text[:3] == '&#x':
-					return unichr(int(text[3:-1], 16))
-				else:
-					return unichr(int(text[2:-1]))
-			except ValueError:
-				pass
-		else:
-			try:
-				text = unichr(htmlentitydefs.name2codepoint[text[1:-1]])
-			except KeyError:
-				pass
-		return text
-	return re.sub('&#?\w+;', fixup, text)
-
-# Hard remove HTML tags
-def unhtml_raw(page, mode):
-	for a in range(0, page.count('<style')):
-		ttag = get_tag_full(page, 'style')
-		page = page.replace(ttag, '')
-
-	for a in range(0, page.count('<script')):
-		ttag = get_tag_full(page, 'script')
-		page = page.replace(ttag, '')
-
-	page = rss_replace(page)
-	if mode:
-		page = replace_ltgt(page)
-	else:
-		page = rss_repl_html(page)
-	page = rss_replace(page)
-	page = rss_del_nn(page)
-	page = page.replace('\n ', '')
-	return page
-
-def rss_del_nn(ms):
-	ms = ms.replace('\r', ' ').replace('\t', ' ')
-	while '\n ' in ms:
-		ms = ms.replace('\n ', '\n')
-	while len(ms) and (ms[0] == '\n' or ms[0] == ' '):
-		ms = ms[1:]
-	while '\n\n' in ms:
-		ms = ms.replace('\n\n', '\n')
-	while '  ' in ms:
-		ms = ms.replace('  ', ' ')
-	while u'\n\n•' in ms:
-		ms = ms.replace(u'\n\n•', u'\n•')
-	while u'• \n' in ms:
-		ms = ms.replace(u'• \n', u'• ')
-	return ms.strip()
-
-def unhtml(page):
-	return unhtml_raw(page, None)
-
-def unhtml_hard(page):
-	return unhtml_raw(page, True)
 
 # Get Bot's version
 def get_bot_version():
@@ -339,10 +259,7 @@ def get_config_bin(_config, _section, _name):
 	except:
 		_var = _config.get(_section, _name).lower()
 	_True = [1, '1', 'yes', 'true']
-	if _var in _True:
-		return True
-	else:
-		return False
+	return _var in _True
 
 # Replace non-ascii and TAB, CR, LF
 def remove_sub_space(t):
@@ -454,11 +371,6 @@ def check_updates():
 	except requests.exceptions.ConnectionError:
 		pprint('*** Connection error on getUpdates. Waiting %s seconds.' % MAX_TIMEOUT, 'red')
 		return False
-	#except requests.exceptions.InvalidSchema:
-	#	time.sleep(MAX_TIMEOUT)
-	#	raise
-	#	pprint('*** Connection error on getUpdates. Waiting %s seconds.' % MAX_TIMEOUT, 'red')
-	#	return False
 
 	if not request.status_code == 200:
 		pprint('*** Error code on getUpdates: %s' % request.status_code, 'red')
@@ -650,69 +562,7 @@ def shell_execute(cmd):
 			pass
 	return '<code>%s</code>' % result
 
-# --- Let's begin! -------------------------------------------------------------- #
-lmass = (('\n','<br>'),('\n','<br />'),('\n','<br/>'),('\n','\n\r'),
-		('','<![CDATA['),('',']]>'),('','&shy;'),('','&ensp;'),('','&emsp;'),
-		('','&thinsp;'),('','&zwnj;'),('','&zwj;'))
-rmass = (('&','&amp;'),('\"','&quot;'),('\'','&apos;'),('~','&tilde;'),
-		(' ','&nbsp;'),('<','&lt;'),('>','&gt;'),(u'¡','&iexcl;'),
-		(u'¢','&cent;'),(u'£','&pound;'),(u'¤','&curren;'),(u'¥','&yen;'),
-		(u'¦','&brvbar;'),(u'§','&sect;'),(u'¨','&uml;'),(u'©','&copy;'),
-		(u'ª','&ordf;'),(u'«','&laquo;'),(u'¬','&not;'),(u'®','&reg;'),
-		(u'¯','&macr;'),(u'°','&deg;'),(u'±','&plusmn;'),(u'²','&sup2;'),
-		(u'³','&sup3;'),(u'´','&acute;'),(u'µ','&micro;'),(u'¶','&para;'),
-		(u'·','&middot;'),(u'¸','&cedil;'),(u'¹','&sup1;'),(u'º','&ordm;'),
-		(u'»','&raquo;'),(u'¼','&frac14;'),(u'½','&frac12;'),(u'¾','&frac34;'),
-		(u'¿','&iquest;'),(u'×','&times;'),(u'÷','&divide;'),(u'À','&Agrave;'),
-		(u'Á','&Aacute;'),(u'Â','&Acirc;'),(u'Ã','&Atilde;'),(u'Ä','&Auml;'),
-		(u'Å','&Aring;'),(u'Æ','&AElig;'),(u'Ç','&Ccedil;'),(u'È','&Egrave;'),
-		(u'É','&Eacute;'),(u'Ê','&Ecirc;'),(u'Ë','&Euml;'),(u'Ì','&Igrave;'),
-		(u'Í','&Iacute;'),(u'Î','&Icirc;'),(u'Ï','&Iuml;'),(u'Ð','&ETH;'),
-		(u'Ñ','&Ntilde;'),(u'Ò','&Ograve;'),(u'Ó','&Oacute;'),(u'Ô','&Ocirc;'),
-		(u'Õ','&Otilde;'),(u'Ö','&Ouml;'),(u'Ø','&Oslash;'),(u'Ù','&Ugrave;'),
-		(u'Ú','&Uacute;'),(u'Û','&Ucirc;'),(u'Ü','&Uuml;'),(u'Ý','&Yacute;'),
-		(u'Þ','&THORN;'),(u'ß','&szlig;'),(u'à','&agrave;'),(u'á','&aacute;'),
-		(u'â','&acirc;'),(u'ã','&atilde;'),(u'ä','&auml;'),(u'å','&aring;'),
-		(u'æ','&aelig;'),(u'ç','&ccedil;'),(u'è','&egrave;'),(u'é','&eacute;'),
-		(u'ê','&ecirc;'),(u'ë','&euml;'),(u'ì','&igrave;'),(u'í','&iacute;'),
-		(u'î','&icirc;'),(u'ï','&iuml;'),(u'ð','&eth;'),(u'ñ','&ntilde;'),
-		(u'ò','&ograve;'),(u'ó','&oacute;'),(u'ô','&ocirc;'),(u'õ','&otilde;'),
-		(u'ö','&ouml;'),(u'ø','&oslash;'),(u'ù','&ugrave;'),(u'ú','&uacute;'),
-		(u'û','&ucirc;'),(u'ü','&uuml;'),(u'ý','&yacute;'),(u'þ','&thorn;'),
-		(u'ÿ','&yuml;'),(u'∀','&forall;'),(u'∂','&part;'),(u'∃','&exists;'),
-		(u'∅','&empty;'),(u'∇','&nabla;'),(u'∈','&isin;'),(u'∉','&notin;'),
-		(u'∋','&ni;'),(u'∏','&prod;'),(u'∑','&sum;'),(u'−','&minus;'),
-		(u'∗','&lowast;'),(u'√','&radic;'),(u'∝','&prop;'),(u'∞','&infin;'),
-		(u'∠','&ang;'),(u'∧','&and;'),(u'∨','&or;'),(u'∩','&cap;'),
-		(u'∪','&cup;'),(u'∫','&int;'),(u'∴','&there4;'),(u'∼','&sim;'),
-		(u'≅','&cong;'),(u'≈','&asymp;'),(u'≠','&ne;'),(u'≡','&equiv;'),
-		(u'≤','&le;'),(u'≥','&ge;'),(u'⊂','&sub;'),(u'⊃','&sup;'),
-		(u'⊄','&nsub;'),(u'⊆','&sube;'),(u'⊇','&supe;'),(u'⊕','&oplus;'),
-		(u'⊗','&otimes;'),(u'⊥','&perp;'),(u'⋅','&sdot;'),(u'Α','&Alpha;'),
-		(u'Β','&Beta;'),(u'Γ','&Gamma;'),(u'Δ','&Delta;'),(u'Ε','&Epsilon;'),
-		(u'Ζ','&Zeta;'),(u'Η','&Eta;'),(u'Θ','&Theta;'),(u'Ι','&Iota;'),
-		(u'Κ','&Kappa;'),(u'Λ','&Lambda;'),(u'Μ','&Mu;'),(u'Ν','&Nu;'),
-		(u'Ξ','&Xi;'),(u'Ο','&Omicron;'),(u'Π','&Pi;'),(u'Ρ','&Rho;'),
-		(u'Σ','&Sigma;'),(u'Τ','&Tau;'),(u'Υ','&Upsilon;'),(u'Φ','&Phi;'),
-		(u'Χ','&Chi;'),(u'Ψ','&Psi;'),(u'Ω','&Omega;'),(u'α','&alpha;'),
-		(u'β','&beta;'),(u'γ','&gamma;'),(u'δ','&delta;'),(u'ε','&epsilon;'),
-		(u'ζ','&zeta;'),(u'η','&eta;'),(u'θ','&theta;'),(u'ι','&iota;'),
-		(u'κ','&kappa;'),(u'λ','&lambda;'),(u'μ','&mu;'),(u'ν','&nu;'),
-		(u'ξ','&xi;'),(u'ο','&omicron;'),(u'π','&pi;'),(u'ρ','&rho;'),
-		(u'ς','&sigmaf;'),(u'σ','&sigma;'),(u'τ','&tau;'),(u'υ','&upsilon;'),
-		(u'φ','&phi;'),(u'χ','&chi;'),(u'ψ','&psi;'),(u'ω','&omega;'),
-		(u'ϑ','&thetasym;'),(u'ϒ','&upsih;'),(u'ϖ','&piv;'),(u'Œ','&OElig;'),
-		(u'œ','&oelig;'),(u'Š','&Scaron;'),(u'š','&scaron;'),(u'Ÿ','&Yuml;'),
-		(u'ƒ','&fnof;'),(u'ˆ','&circ;'),(u'‎','&lrm;'),(u'‏','&rlm;'),
-		(u'–','&ndash;'),(u'—','&mdash;'),(u'‘','&lsquo;'),(u'’','&rsquo;'),
-		(u'‚','&sbquo;'),(u'“','&ldquo;'),(u'”','&rdquo;'),(u'„','&bdquo;'),
-		(u'†','&dagger;'),(u'‡','&Dagger;'),(u'•','&bull;'),(u'…','&hellip;'),
-		(u'‰','&permil;'),(u'′','&prime;'),(u'″','&Prime;'),(u'‹','&lsaquo;'),
-		(u'›','&rsaquo;'),(u'‾','&oline;'),(u'€','&euro;'),(u'™','&trade;'),
-		(u'←','&larr;'),(u'↑','&uarr;'),(u'→','&rarr;'),(u'↓','&darr;'),
-		(u'↔','&harr;'),(u'↵','&crarr;'),(u'⌈','&lceil;'),(u'⌉','&rceil;'),
-		(u'⌊','&lfloor;'),(u'⌋','&rfloor'),(u'◊','&loz;'),(u'♠','&spades;'),
-		(u'♣','&clubs;'),(u'♥','&hearts;'),(u'♦','&diams;'))
+# --- Let's begin! ----------------------------------------------------------- #
 TELEGRAM_API_URL   = 'https://api.telegram.org/bot%s' # Bot apt URL
 SETTING_FOLDER     = 'settings/%s'                    # Setting folder
 PLUGIN_FOLDER      = 'plugins/%s'                     # Plugins folder

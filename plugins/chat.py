@@ -65,7 +65,9 @@ def getSmartAnswer(ID, text):
 		answ = random.choice(list_of_answers[loc]).strip()
 	else:
 		answ = random.choice(list_of_empty[loc]).strip()
-	score = 1.0
+	score = float(len(text.split()) - 2)
+	if score < 2:
+		score = 2
 	sc = 0
 	var = [answ]
 	text = ' %s ' % text.upper()
@@ -77,7 +79,11 @@ def getSmartAnswer(ID, text):
 		elif sc == score:
 			var += dict_of_mind[loc][answer]
 
-	return random.choice(var)
+	answ = random.choice(var)
+	while answ == LAST_PHRASE.get(ID, '') and len(var) >= 2:
+		answ = random.choice(var)
+	LAST_PHRASE[ID] = answ
+	return answ
 
 def rating(s, text, ID):
 	r = 0.0
