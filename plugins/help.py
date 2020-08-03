@@ -25,7 +25,7 @@ def get_su(t):
 	return ['', '⚠️'][t]
 
 def cmd_help(raw_in, text):
-	IS_OWNER = raw_in['message']['from'].get('id', '') == OWNER_ID
+	IS_OWNER = raw_in['message']['from'].get('id', '') in OWNER_ID
 	text = text.lower().strip()
 	if not text:
 		msg = ['🤖 iSida telegram bot',
@@ -65,7 +65,7 @@ def cmd_help(raw_in, text):
 		send_msg(raw_in, msg)
 
 def cmd_commands(raw_in):
-	IS_OWNER = raw_in['message']['from'].get('id', '') == OWNER_ID
+	IS_OWNER = raw_in['message']['from'].get('id', '') in OWNER_ID
 	try:
 		CHAT_ID = raw_in['message']['chat'].get('id', 0)
 	except:

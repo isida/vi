@@ -109,7 +109,9 @@ if __name__ == "__main__":
 			crash('Multilaunch detected! Kill pid %s before launch bot again!' % last_pid)
 		except:
 			SM = '\n'.join(str(t) for t in sys.exc_info())
-			if 'ProcessLookupError' not in SM:
+			if 'No such process' in SM:
+				pass
+			elif 'ProcessLookupError' not in SM:
 				crash('Unknown exception!\n%s' % SM)
 
 		writefile(pid_file,str(PID))

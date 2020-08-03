@@ -250,6 +250,13 @@ def get_config_int(_config, _section, _name):
 	except:
 		return -1
 
+# Get integer array of values from config
+def get_config_int_array(_config, _section, _name):
+	try:
+		return [int(t) for t in _config.get(_section, _name).split() if t]
+	except:
+		return [-1]
+
 # Get binary value from config
 # True == 1, '1', 'yes', 'true'
 # False == all else
@@ -439,7 +446,7 @@ def check_updates():
 				pprint(json.dumps(msg_in, indent=2, separators=(',', ': ')), 'magenta')
 				continue
 
-		IS_OWNER = msg_in['message']['from'].get('id', '') == OWNER_ID
+		IS_OWNER = msg_in['message']['from'].get('id', '') in OWNER_ID
 		CMD = msg_in['message'].get('text', '').strip()
 		splitter = '<%s>' % random.randint(0, 2 ** 32)
 		CMD = CMD.replace(BOT_NAME, splitter)
@@ -681,7 +688,7 @@ DEBUG_LOG         = get_config_bin(CONFIG, CONFIG_DEBUG, 'logging')
 DEBUG_CONSOLE     = get_config_bin(CONFIG, CONFIG_DEBUG, 'console')
 DEBUG_JSON        = get_config_bin(CONFIG, CONFIG_DEBUG, 'json')
 HALT_ON_EXCEPTION = get_config_bin(CONFIG, CONFIG_DEBUG, 'halt_on_exception')
-OWNER_ID          = get_config_int(CONFIG, CONFIG_OWNER, 'id')
+OWNER_ID          = get_config_int_array(CONFIG, CONFIG_OWNER, 'id')
 
 API_URL = TELEGRAM_API_URL % CONFIG_API_TOKEN + '/%s'
 
