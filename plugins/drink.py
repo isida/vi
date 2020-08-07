@@ -46,7 +46,7 @@ def cmd_to_drink(raw_in, text):
 			if len(text) <= 2:
 				ltim = tuple(time.localtime())
 				text = '%s %s' % (ltim[2], drink_mmas2[ltim[1]-1])
-				week1 = '%s %s %s' % (ltim[2]/7+(ltim[2]%7 > 0), drink_wday[ltim[6]], drink_mmas2[ltim[1]-1])
+				week1 = '%d %s %s' % (ltim[2]/7+(ltim[2]%7 > 0), drink_wday[ltim[6]], drink_mmas2[ltim[1]-1])
 				if ltim[2]+7 > calendar.monthrange(ltim[0], ltim[1])[1]:
 					week2 = '%s %s %s' % (drink_lday[ltim[6]].lower(), drink_wday[ltim[6]], drink_mmas2[ltim[1]-1])
 			or_text = text
@@ -58,6 +58,8 @@ def cmd_to_drink(raw_in, text):
 				text = [text]
 			msg = ''
 			ddate = ddate.split('\n')
+			print(week1)
+			print(week2)
 			for tmp in ddate:
 				if or_text.lower() in tmp.lower():
 					msg += '\n🔹'+tmp
