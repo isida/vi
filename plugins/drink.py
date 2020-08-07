@@ -58,8 +58,6 @@ def cmd_to_drink(raw_in, text):
 				text = [text]
 			msg = ''
 			ddate = ddate.split('\n')
-			print(week1)
-			print(week2)
 			for tmp in ddate:
 				if or_text.lower() in tmp.lower():
 					msg += '\n🔹'+tmp
