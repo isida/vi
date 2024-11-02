@@ -367,14 +367,18 @@ def load_page(page_name, parameters=None):
 def check_updates():
 	global OFFSET
 	data = {'limit': 0,
-			'timeout': 30}
+			'timeout': POLLING_TIMEOUT}
 	if OFFSET:
 		data['offset'] = OFFSET + 1
 
 	try:
 		request = requests.post(API_URL % 'getUpdates',
 								data = data,
-								proxies = PROXIES)
+								proxies = PROXIES,
+								timeout = POLLING_TIMEOUT + MAX_TIMEOUT)
+	except requests.exceptions.ReadTimeout:
+		pprint('*** Connection timeout on getUpdates. Waiting %s seconds.' % MAX_TIMEOUT, 'red')
+		return False
 	except requests.exceptions.ConnectionError:
 		pprint('*** Connection error on getUpdates. Waiting %s seconds.' % MAX_TIMEOUT, 'red')
 		return False
@@ -602,6 +606,7 @@ THREAD_ERROR_COUNT = 0                                # Threads with error
 GAME_OVER          = False                            # Bot's status
 BOT_EXIT_TYPE      = ''                               # Reason for bot's kernel exit
 LOGGER             = False                            # Logger plugin
+POLLING_TIMEOUT    = 30                               # Long polling timeout
 
 # --- Init ------------------------------------------------------------------- #
 try:

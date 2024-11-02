@@ -96,9 +96,9 @@ data/tmp/version
 plugins/_*.py
 desktop.ini
 
-data/chatlog/-[0-9]*
-data/chatlog/[0-9]*
-data/chatlog/*@*
+data/chatlog/*
+data/publiclogs/*
+data/version
 *.tmp
 
 # The end is near!
