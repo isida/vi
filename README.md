@@ -46,4 +46,4 @@ docker run -d isida-vi
 
 ------
 
-Copyright 2oo9..2o2o by [diSabler](http://dsy.name) under [GPLv3](http://www.gnu.org/licenses/gpl.txt) Licence
+Copyright 2oo9..2o24 by [diSabler](http://dsy.name) under [GPLv3](http://www.gnu.org/licenses/gpl.txt) Licence
