@@ -1,4 +1,4 @@
-![alt text](http://isida.dsy.name/images/isida-logo-v6-big.png "iSida bot")
+![alt text](https://raw.githubusercontent.com/isida/vi/master/images/isida-logo-v6-big.png "iSida bot")
 
 6th generation
 ======
@@ -13,7 +13,7 @@ Required:
 ------
 
 More info:
-* Official [site](http://isida.dsy.name)
+* Official [site](https://github.com/isida/vi)
 * Telegram chat: [@isida_bot_dev](https://t.me/isida_bot_dev)
 * Bot: [@isida_bot](https://t.me/isida_bot)
 

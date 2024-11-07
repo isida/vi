@@ -34,7 +34,7 @@ def cmd_help(raw_in, text):
 			   '🔸 Help list: /help_list',
 			   '🔸 Help all commands: /help_all',
 			   '🔸 Dev-chat @isida_bot_dev',
-			   '🔸 Site: http://isida.dsy.name']
+			   '🔸 Site: https://github.com/isida/vi']
 		msg = '\n'.join(msg)
 		send_msg(raw_in, msg, custom = {'disable_web_page_preview': True})
 	else:

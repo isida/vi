@@ -87,7 +87,7 @@ def update(USED_REPO):
 	elif USED_REPO == 'docker':
 		os.system('echo Update not available inside docker image! > %s' % updatelog_file)
 	else:
-		os.system('echo Update not available! Read wiki at http://isida.dsy.name to use GIT! > %s' % updatelog_file)
+		os.system('echo Update not available! Read https://github.com/isida/vi to use GIT! > %s' % updatelog_file)
 
 if __name__ == "__main__":
 	PID = os.getpid()
