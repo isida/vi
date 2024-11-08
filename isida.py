@@ -77,7 +77,7 @@ def crash(text):
 
 def update(USED_REPO):
 	if USED_REPO == 'git':
-		os.system('git pull -u origin master')
+		os.system('git pull origin master')
 		os.system('git describe --always > %s' % ver_file)
 		revno = str(readfile(ver_file)).replace('\n','').replace('\r','').replace('\t','').replace(' ','')
 		os.system('git log --pretty=format:'' > %s' % ver_file)
